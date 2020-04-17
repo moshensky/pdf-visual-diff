@@ -9,7 +9,6 @@
     "declaration": true,
     "noEmitOnError": false,
     "sourceMap": true,
-    "baseUrl": "src",
     "lib": ["dom", "es2017"],
     "strict": true,
     "noImplicitAny": true,

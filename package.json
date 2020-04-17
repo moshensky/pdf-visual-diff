@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
+    "@types/gm": "^1.18.7",
     "@types/mocha": "^7.0.2",
     "@types/node": "^12.12.34",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
