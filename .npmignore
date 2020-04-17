@@ -1,0 +1,10 @@
+.vscode
+coverage
+src
+.eslintignore
+.eslintrc.js
+.mocharc.json
+.nvmrc
+.prettierrc.json
+tsconfig.json
+lib/*.spec.*
