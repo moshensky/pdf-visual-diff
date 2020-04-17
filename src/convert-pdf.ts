@@ -1,5 +1,6 @@
 import { join } from 'path'
 import gm from 'gm'
+import { existsSync, mkdirSync } from 'fs'
 
 const isString = (x: unknown): x is string => typeof x === 'string' || x instanceof String
 
@@ -17,6 +18,9 @@ export const pdfToImages = (
   fileName: string,
 ): Promise<void> =>
   new Promise((resolve, reject) => {
+    if (!existsSync(outputDir)) {
+      mkdirSync(outputDir)
+    }
     gm(pdf, isString(pdf) ? undefined : 'any.pdf')
       .density(300, 300)
       .out('+adjoin')

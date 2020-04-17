@@ -1,8 +1,8 @@
 import { compareImages } from './compare-images'
-import { pdfToImage } from './convert-pdf'
+import { pdfToImage, pdfToImages } from './convert-pdf'
 import { expect } from 'chai'
 import { join } from 'path'
-import { unlinkSync, readFileSync } from 'fs'
+import { unlinkSync, readFileSync, rmdirSync } from 'fs'
 
 const testDataDir = join(__dirname, './test-data')
 
@@ -15,7 +15,11 @@ const singlePageExpectedImagePath = join(testDataDir, 'single-page-expected.png'
 const twoPagePdfPath = join(testDataDir, 'two-page.pdf')
 const twoPageExpectedImagePath = join(testDataDir, 'two-page-expected.png')
 
-const rin = (): string => Math.random().toString(36).substring(7) + '.png'
+const expectedTwoPageFirstPageImage = join(testDataDir, 'two-page-expected', 'first.png')
+const expectedTwoPageSecondPageImage = join(testDataDir, 'two-page-expected', 'second.png')
+
+const rip = (): string => Math.random().toString(36).substring(7)
+const rin = (): string => rip() + '.png'
 
 const mkTest = (t: (x: string) => string | Buffer) => (
   pdfPath: string,
@@ -54,4 +58,27 @@ describe('pdfToImage() path to pdf', () => {
 
   it('should convert two page pdf to one image', () =>
     test(twoPagePdfPath, twoPageExpectedImagePath))
+})
+
+describe('pdfToImages()', () => {
+  it('should convert two page pdf to two images', () => {
+    const imagesDir = join(__dirname, rip())
+    const imageName = rip()
+    return pdfToImages(twoPagePdfPath, imagesDir, imageName).then(() =>
+      Promise.all([
+        compareImages(expectedTwoPageFirstPageImage, join(imagesDir, imageName + '000.png')).then(
+          (x) => {
+            expect(x).to.be.true
+          },
+        ),
+        compareImages(expectedTwoPageSecondPageImage, join(imagesDir, imageName + '001.png')).then(
+          (x) => {
+            expect(x).to.be.true
+          },
+        ),
+      ]).then(() => {
+        rmdirSync(imagesDir, { recursive: true })
+      }),
+    )
+  })
 })
