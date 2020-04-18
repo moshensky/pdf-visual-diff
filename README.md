@@ -61,3 +61,55 @@ describe('test pdf report visual regression', () => {
     comparePdfToSnapshot(pathToPdf, __dirname, 'my-awesome-report').then((x) => expect(x).to.be.true))
 })
 ```
+
+## Usage with Jest  `expect.extend`
+
+Create file with code along those lines:
+
+```ts
+import { comparePdfToSnapshot } from 'pdf-visual-diff'
+import { dirname } from 'path'
+import { makePdf } from './pdfmake'
+import { TDocumentDefinitions } from 'pdfmake/interfaces'
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace jest {
+    interface Matchers<R> {
+      toMatchPdfSnapshot(): R
+    }
+  }
+}
+
+expect.extend({
+  // TODO: use jest snapshot api (for an easier snapshots update)
+  toMatchPdfSnapshot(pdf: string | Buffer) {
+    const { isNot, testPath, currentTestName } = this
+    if (isNot) {
+      throw new Error('Jest: `.not` cannot be used with `.toMatchPdfSnapshot()`.')
+    }
+
+    const currentDirectory = dirname(testPath)
+    const snapshotName = currentTestName.split(' ').join('_')
+
+    return comparePdfToSnapshot(pdf, currentDirectory, snapshotName)
+      .then((pass) => ({
+        pass,
+        message: () => 'Does not match with snapshot.',
+      }))
+  },
+})
+```
+
+NB! Do not forget to register above code in your jest.config `setupFilesAfterEnv`.
+
+Then all you have to do in your tests is pass a path to the pdf or pdf content as Buffer. 
+
+```ts
+const pathToPdf = 'path to your pdf' // or you might pass in Buffer instead
+describe('test pdf report visual regression', () => {
+  it('should match', () => expect(pathToPdf).toMatchPdfSnapshot())
+})
+```
+
+As you can seen no need to fiddle with any dirs nor names. Needed information is extracted from jest context.
