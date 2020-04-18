@@ -16,7 +16,7 @@ describe('comparePdfToSnapshot()', () => {
     if (existsSync(snapshotPath)) {
       unlinkSync(snapshotPath)
     }
-    return comparePdfToSnapshot(singlePageSmallPdfPath, snapshotName).then((x) => {
+    return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName).then((x) => {
       expect(x).to.be.true
       expect(existsSync(snapshotPath)).to.be.true
       unlinkSync(snapshotPath)
@@ -24,12 +24,14 @@ describe('comparePdfToSnapshot()', () => {
   })
 
   it('should pass', () =>
-    comparePdfToSnapshot(twoPagePdfPath, 'two-page').then((x) => expect(x).to.be.true))
+    comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page').then((x) => expect(x).to.be.true))
 
-  it('should fail and create diff', () =>
-    comparePdfToSnapshot(singlePagePdfPath, 'two-page').then((x) => {
+  it('should fail and create diff and new versions of expected image', () =>
+    comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page').then((x) => {
       expect(x).to.be.false
-      const snapshotPath = join(__dirname, snapshotsDirName, 'two-page.diff.png')
-      expect(existsSync(snapshotPath)).to.be.true
+      const snapshotDiffPath = join(__dirname, snapshotsDirName, 'two-page.diff.png')
+      expect(existsSync(snapshotDiffPath)).to.eq(true, 'diff is not created')
+      const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page.new.png')
+      expect(existsSync(snapshotNewPath)).to.eq(true, 'new is not created')
     })).timeout(10000)
 })
