@@ -9,11 +9,25 @@ export const mkDiffPath = (path: string): string => {
 }
 
 export type CompareImagesOpts = {
+  highlightColor:
+    | 'Red'
+    | 'Green'
+    | 'Blue'
+    | 'Opacity'
+    | 'Matte'
+    | 'Cyan'
+    | 'Magenta'
+    | 'Yellow'
+    | 'Black'
+    | 'Gray'
+  highlightStyle: 'Assign' | 'Threshold' | 'Tint' | 'XOR'
   tolerance: number
   writeDiff: boolean
 }
 
 const defaultOpts: CompareImagesOpts = {
+  highlightColor: 'Yellow',
+  highlightStyle: 'Tint',
   tolerance: 0,
   writeDiff: true,
 }
@@ -23,7 +37,7 @@ export const compareImages = (
   resultImagePath: string,
   opts: Partial<CompareImagesOpts> = {},
 ): Promise<boolean> => {
-  const { tolerance, writeDiff }: CompareImagesOpts = {
+  const { tolerance, writeDiff, highlightColor, highlightStyle }: CompareImagesOpts = {
     ...defaultOpts,
     ...opts,
   }
@@ -44,7 +58,8 @@ export const compareImages = (
 
       const options = {
         file: mkDiffPath(resultImagePath),
-        highlightColor: 'yellow',
+        highlightColor,
+        highlightStyle,
         tolerance,
       }
       gm.compare(expectedImagePath, resultImagePath, options, () => resolve(false))
