@@ -29,5 +29,11 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm run test
+      - name: Store snapshots from tests
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: snapshots
+          path: ${{ github.workspace }}/src/__snapshots__/
       - name: Run lint
         run: npm run lint
