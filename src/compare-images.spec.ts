@@ -30,6 +30,7 @@ describe('compareImages()', () => {
   it('should succeed comparing', () =>
     compareImages(expectedImagePath, imagePath).then((x) => {
       expect(x).to.be.true
+      expect(existsSync(mkDiffPath(imagePath))).to.eq(false, 'should not generate diff output')
     }))
 
   it('should fail comparing and output diff', () =>

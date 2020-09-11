@@ -1,4 +1,4 @@
-import gm from 'gm'
+import { compare, CompareOptions, HighlightStyle } from './compare'
 
 const diffToken = '.diff'
 export const mkDiffPath = (path: string): string => {
@@ -8,25 +8,27 @@ export const mkDiffPath = (path: string): string => {
     : path.substring(0, dotIndex) + diffToken + path.substring(dotIndex)
 }
 
+export type HighlightColor =
+  | 'Red'
+  | 'Green'
+  | 'Blue'
+  | 'Opacity'
+  | 'Matte'
+  | 'Cyan'
+  | 'Magenta'
+  | 'Yellow'
+  | 'Black'
+  | 'Gray'
+
 export type CompareImagesOpts = {
-  highlightColor:
-    | 'Red'
-    | 'Green'
-    | 'Blue'
-    | 'Opacity'
-    | 'Matte'
-    | 'Cyan'
-    | 'Magenta'
-    | 'Yellow'
-    | 'Black'
-    | 'Gray'
-  highlightStyle: 'Assign' | 'Threshold' | 'Tint' | 'XOR'
+  highlightColor: HighlightColor
+  highlightStyle: HighlightStyle
   tolerance: number
   writeDiff: boolean
 }
 
 const defaultOpts: CompareImagesOpts = {
-  highlightColor: 'Yellow',
+  highlightColor: 'Black',
   highlightStyle: 'Tint',
   tolerance: 0,
   writeDiff: true,
@@ -42,27 +44,17 @@ export const compareImages = (
     ...opts,
   }
 
-  return new Promise((resolve, reject) => {
-    gm.compare(expectedImagePath, resultImagePath, { tolerance }, (err, isEqual) => {
-      if (err) {
-        return reject(err)
-      }
-
-      if (isEqual === true) {
-        return resolve(true)
-      }
-
-      if (writeDiff === false) {
-        return resolve(false)
-      }
-
-      const options = {
+  return compare(expectedImagePath, resultImagePath, { tolerance }).then((isEqual) => {
+    if (writeDiff === true && isEqual === false) {
+      const options: CompareOptions = {
         file: mkDiffPath(resultImagePath),
         highlightColor,
         highlightStyle,
         tolerance,
       }
-      gm.compare(expectedImagePath, resultImagePath, options, () => resolve(false))
-    })
+      return compare(expectedImagePath, resultImagePath, options)
+    }
+
+    return isEqual
   })
 }
