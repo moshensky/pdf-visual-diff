@@ -1,4 +1,4 @@
-import gm from 'gm'
+import gm, { CompareOptions } from 'gm'
 
 const diffToken = '.diff'
 export const mkDiffPath = (path: string): string => {
@@ -26,7 +26,7 @@ export type CompareImagesOpts = {
 }
 
 const defaultOpts: CompareImagesOpts = {
-  highlightColor: 'Yellow',
+  highlightColor: 'Black',
   highlightStyle: 'Tint',
   tolerance: 0,
   writeDiff: true,
@@ -56,7 +56,7 @@ export const compareImages = (
         return resolve(false)
       }
 
-      const options = {
+      const options: CompareOptions = {
         file: mkDiffPath(resultImagePath),
         highlightColor,
         highlightStyle,
