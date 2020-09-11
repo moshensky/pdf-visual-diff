@@ -51,12 +51,12 @@ nvm use
 npm ci
 npm run build
 npm pack
-npm publish
+# npm publish
 
-git add . -A
-git commit -m 'publish '${new_version}
-git tag $new_version
-git push
+# git add . -A
+# git commit -m 'publish '${new_version}
+# git tag $new_version
+# git push
 
 echo "Success"
 exit 0
