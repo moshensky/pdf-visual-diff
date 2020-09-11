@@ -75,9 +75,11 @@ This packages provides custom jest matcher `toMatchPdfSnapshot`
 }
 ```
 
-If you are using Typescript add `import('pdf-visual-diff/lib/toMatchPdfSnapshot')` to your typings.
+If you are using **Typescript** add `import('pdf-visual-diff/lib/toMatchPdfSnapshot')` to your typings.
 
-Then all you have to do in your tests is pass a path to the pdf or pdf content as Buffer.
+### Usage
+
+All you have to do in your tests is pass a path to the pdf or pdf content as Buffer.
 
 ```ts
 const pathToPdf = 'path to your pdf' // or you might pass in Buffer instead
