@@ -36,7 +36,7 @@ describe('comparePdfToSnapshot()', () => {
       expect(existsSync(snapshotNewPath)).to.eq(true, 'new is not created')
     }))
 
-  it('should fail and create diff and new versions of expected image and overwrite default options', () =>
+  it('custom options', () =>
     comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page-overwrite-opts', {
       highlightColor: 'Red',
       highlightStyle: 'XOR',
@@ -53,8 +53,6 @@ describe('comparePdfToSnapshot()', () => {
           './test-data',
           'expected-two-page-overwrite-opts.diff.png',
         )
-        console.log(expectedImagePath)
-        console.log(snapshotDiffPath)
         gm.compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }, (err, isEqual) => {
           if (err) {
             reject(err)
