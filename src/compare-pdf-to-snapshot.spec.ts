@@ -2,7 +2,7 @@ import { comparePdfToSnapshot, snapshotsDirName } from './compare-pdf-to-snapsho
 import { join } from 'path'
 import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
-import gm from 'gm'
+import { compare } from './compare'
 
 const testDataDir = join(__dirname, './test-data')
 
@@ -47,19 +47,13 @@ describe('comparePdfToSnapshot()', () => {
       const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page-overwrite-opts.new.png')
       expect(existsSync(snapshotNewPath)).to.eq(true, 'new is not created')
 
-      return new Promise((resolve, reject) => {
-        const expectedImagePath = join(
-          __dirname,
-          './test-data',
-          'expected-two-page-overwrite-opts.diff.png',
-        )
-        gm.compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }, (err, isEqual) => {
-          if (err) {
-            reject(err)
-          }
-
-          return resolve(isEqual)
-        })
-      }).then((x) => expect(x).to.eq(true, 'generated diff image does not match expected one'))
+      const expectedImagePath = join(
+        __dirname,
+        './test-data',
+        'expected-two-page-overwrite-opts.diff.png',
+      )
+      compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }).then((x) =>
+        expect(x).to.eq(true, 'generated diff image does not match expected one'),
+      )
     }))
 })
