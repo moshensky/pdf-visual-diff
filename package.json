@@ -1,6 +1,6 @@
 {
   "name": "pdf-visual-diff",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Visual Regression Testing for PDFs in JavaScript",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
