@@ -56,7 +56,7 @@ npm pack
 git add . -A
 git commit -m 'publish '${new_version}
 # git tag $new_version
-git push --tags
+git push
 
 echo "Success"
 exit 0
