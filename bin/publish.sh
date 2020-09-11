@@ -33,10 +33,10 @@ if [ "$(git branch --show-current)" != "master" ]; then
   exit 1
 fi
 
-# if [ ! -z "$(git status --porcelain)" ]; then
-#   echo "Git working tree is NOT clean!"
-#   exit 1
-# fi
+if [ ! -z "$(git status --porcelain)" ]; then
+  echo "Git working tree is NOT clean!"
+  exit 1
+fi
 
 # Replace version in package.json and package-lock.json files
 for package_path in package.json package-lock.json
@@ -51,11 +51,11 @@ nvm use
 npm ci
 npm run build
 npm pack
-# npm publish
+npm publish
 
 git add . -A
 git commit -m 'publish '${new_version}
-# git tag $new_version
+git tag $new_version
 git push
 
 echo "Success"
