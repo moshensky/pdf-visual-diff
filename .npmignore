@@ -1,5 +1,6 @@
 .vscode
 coverage
+bin
 src
 .eslintignore
 .eslintrc.js
@@ -8,3 +9,4 @@ src
 .prettierrc.json
 tsconfig.json
 lib/*.spec.*
+*.tgz  
