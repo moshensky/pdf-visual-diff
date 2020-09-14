@@ -33,11 +33,17 @@ This package exports single function `comparePdfToSnapshot`. With the following 
  * @param pdf - path to pdf file or pdf loaded as Buffer
  * @param snapshotDir - path to a directory where __snapshots__ folder is going to be created
  * @param snapshotName - uniq name of a snapshot in the above path
+ * @param compareImageOpts - settings for image comparation
+ * @param compareImageOpts.highlightColor - color for differences in the diff image, defaults to Black
+ * @param compareImageOpts.highlightStyle - highlight style as documented by the {@link http://www.graphicsmagick.org/GraphicsMagick.html#details-highlight-style gm package}, defaults to Tint
+ * @param compareImageOpts.tolerance - number value for error tolerance, defaults to 0
+ * @param compareImageOpts.writeDiff - flag to enable/disable diff file creation, defaults to true
  */
 type ComparePdfToSnapshot = (
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
+  compareImageOpts?: Partial<CompareImagesOpts>,
 ) => Promise<boolean>
 ```
 
@@ -59,7 +65,9 @@ import { expect } from 'chai'
 describe('test pdf report visual regression', () => {
   const pathToPdf = 'path to your pdf' // or you might pass in Buffer instead
   it('should pass', () =>
-    comparePdfToSnapshot(pathToPdf, __dirname, 'my-awesome-report').then((x) => expect(x).to.be.true))
+    comparePdfToSnapshot(pathToPdf, __dirname, 'my-awesome-report').then(
+      (x) => expect(x).to.be.true,
+    ))
 })
 ```
 
