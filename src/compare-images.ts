@@ -20,11 +20,23 @@ export type HighlightColor =
   | 'Black'
   | 'Gray'
 
+export type RectangleMask = Readonly<{
+  type: 'rectangle-mask'
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+  color: HighlightColor
+}>
+
+export type MaskRegions = ReadonlyArray<RectangleMask>
+
 export type CompareImagesOpts = {
   highlightColor: HighlightColor
   highlightStyle: HighlightStyle
   tolerance: number
   writeDiff: boolean
+  maskRegions: MaskRegions
 }
 
 const defaultOpts: CompareImagesOpts = {
@@ -32,6 +44,7 @@ const defaultOpts: CompareImagesOpts = {
   highlightStyle: 'Tint',
   tolerance: 0,
   writeDiff: true,
+  maskRegions: [],
 }
 
 export const compareImages = (
