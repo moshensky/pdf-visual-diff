@@ -1,4 +1,5 @@
 import { compare, CompareOptions, HighlightStyle } from './compare'
+import { drawRectangle } from './drawing'
 
 const diffToken = '.diff'
 export const mkDiffPath = (path: string): string => {
@@ -22,10 +23,10 @@ export type HighlightColor =
 
 export type RectangleMask = Readonly<{
   type: 'rectangle-mask'
-  x0: number
-  y0: number
-  x1: number
-  y1: number
+  x: number
+  y: number
+  width: number
+  height: number
   color: HighlightColor
 }>
 
@@ -52,22 +53,34 @@ export const compareImages = (
   resultImagePath: string,
   opts: Partial<CompareImagesOpts> = {},
 ): Promise<boolean> => {
-  const { tolerance, writeDiff, highlightColor, highlightStyle }: CompareImagesOpts = {
+  const { tolerance, writeDiff, highlightColor, highlightStyle, maskRegions }: CompareImagesOpts = {
     ...defaultOpts,
     ...opts,
   }
 
-  return compare(expectedImagePath, resultImagePath, { tolerance }).then((isEqual) => {
-    if (writeDiff === true && isEqual === false) {
-      const options: CompareOptions = {
-        file: mkDiffPath(resultImagePath),
-        highlightColor,
-        highlightStyle,
-        tolerance,
-      }
-      return compare(expectedImagePath, resultImagePath, options)
-    }
+  return maskRegions
+    .reduce(
+      (acc, { type, x, y, width, height, color }) =>
+        acc.then(() =>
+          type === 'rectangle-mask'
+            ? drawRectangle(expectedImagePath, x, y, x + width, y + height, color)
+            : undefined,
+        ),
+      Promise.resolve(),
+    )
+    .then(() =>
+      compare(expectedImagePath, resultImagePath, { tolerance }).then((isEqual) => {
+        if (writeDiff === true && isEqual === false) {
+          const options: CompareOptions = {
+            file: mkDiffPath(resultImagePath),
+            highlightColor,
+            highlightStyle,
+            tolerance,
+          }
+          return compare(expectedImagePath, resultImagePath, options)
+        }
 
-    return isEqual
-  })
+        return isEqual
+      }),
+    )
 }

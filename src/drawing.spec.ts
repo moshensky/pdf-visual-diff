@@ -9,7 +9,8 @@ describe('drawRectangle()', () => {
   const expectedImage = join(testDataDir, 'sample-image-with-rectangle-expected.png')
   const sampleImage = join(testDataDir, 'sample-image.png')
   const resultImage = join(testDataDir, 'sample-image-with-rectangle-diff.png')
-  it.only('should create rectangle on an image', () =>
+
+  it('should create rectangle on an image', () =>
     drawRectangle(sampleImage, 10, 10, 200, 200, 'black', resultImage)
       .then(() => compareImages(expectedImage, resultImage))
       .then((x) => {
