@@ -38,6 +38,7 @@ This package exports single function `comparePdfToSnapshot`. With the following 
  * @param compareImageOpts.highlightStyle - highlight style as documented by the {@link http://www.graphicsmagick.org/GraphicsMagick.html#details-highlight-style gm package}, defaults to Tint
  * @param compareImageOpts.tolerance - number value for error tolerance, defaults to 0
  * @param compareImageOpts.writeDiff - flag to enable/disable diff file creation, defaults to true
+ * @param compareImageOpts.maskRegions - exclude regions from the diff by masking them with solid rectangles
  */
 type ComparePdfToSnapshot = (
   pdf: string | Buffer,

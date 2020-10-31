@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 / 2020-10-31
+
+### :tada: Enhancements
+
+- [#15](https://github.com/moshensky/pdf-visual-diff/pull/15): Exclude regions from diff
+
+
 ## 0.3.0 / 2020-09-12
 
 ### :tada: Enhancements
