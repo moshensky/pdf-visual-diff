@@ -56,4 +56,27 @@ describe('comparePdfToSnapshot()', () => {
         expect(x).to.eq(true, 'generated diff image does not match expected one'),
       )
     }))
+
+  // TODO: improve test by generating random thingy instead of the first shape in the single page pdf
+  it('should succeed comparing masked image', () =>
+    comparePdfToSnapshot(singlePagePdfPath, __dirname, 'rectangle-masks', {
+      maskRegions: [
+        {
+          type: 'rectangle-mask',
+          x: 120,
+          y: 150,
+          width: 280,
+          height: 200,
+          color: 'Blue',
+        },
+        {
+          type: 'rectangle-mask',
+          x: 220,
+          y: 400,
+          width: 180,
+          height: 100,
+          color: 'Green',
+        },
+      ],
+    }).then((x) => expect(x).to.be.true))
 })

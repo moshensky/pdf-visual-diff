@@ -1,6 +1,7 @@
+.github
 .vscode
-coverage
 bin
+coverage
 src
 .eslintignore
 .eslintrc.js
