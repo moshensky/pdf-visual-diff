@@ -57,7 +57,7 @@ describe('comparePdfToSnapshot()', () => {
       )
     }))
 
-  // TODO: improve test by generating random thingy instead of first shape in single page pdf
+  // TODO: improve test by generating random thingy instead of the first shape in the single page pdf
   it('should succeed comparing masked image', () =>
     comparePdfToSnapshot(singlePagePdfPath, __dirname, 'rectangle-masks', {
       maskRegions: [
