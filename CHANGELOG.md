@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 / 2020-10-31
+
+### :tada: Enhancements
+
+- add compare image options to the custom jest matcher
+
 ## 0.4.0 / 2020-10-31
 
 ### :tada: Enhancements
