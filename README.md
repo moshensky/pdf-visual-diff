@@ -57,6 +57,8 @@ When function is executed it has following **side** effects:
 
 ## Sample usage
 
+> **NB!** You can find sample projects inside  [examples folder](examples).
+
 Write a test file:
 
 ```js

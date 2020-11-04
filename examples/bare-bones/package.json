@@ -1,0 +1,14 @@
+{
+  "name": "bare-bones",
+  "version": "1.0.0",
+  "description": "bare-bones example how to use pdf-visual-diff lib",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pdf-visual-diff": "^0.5.0"
+  }
+}
