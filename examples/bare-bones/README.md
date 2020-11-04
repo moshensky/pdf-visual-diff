@@ -22,4 +22,4 @@ node index.js
 ```
 
 Because the snapshot already exists, the pdf will be compared to it. The program output should equal to `Is pdf equal to it's snapshot? Answer: true`.
-You could try replacing the snapshot file `single-page-snapshot.png` inside `__snapshots__` dir and run the program again. If you replace it with some random image you should see in the terminal `Answer: false`.
+You could try replacing the snapshot file `single-page-snapshot.png` inside `__snapshots__` dir and run the program again (the filen name should stay the same). If you replace it with some random image you should see in the terminal `Answer: false`.
