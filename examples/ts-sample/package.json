@@ -1,0 +1,58 @@
+{
+  "name": "typescript-sample-sing-pdf-visual-diff",
+  "version": "0.5.0",
+  "description": "Visual Regression Testing for PDFs in JavaScript",
+  "scripts": {
+    "tsc": "tsc --noEmit --pretty",
+    "tsc:watch": "npm run tsc -- --watch",
+    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write .eslintrc.js .prettierrc.json tsconfig.json .mocharc.json",
+    "test": "mocha",
+    "test:watch": "npm test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moshensky/pdf-visual-diff.git"
+  },
+  "keywords": [
+    "pdf visual regression testing",
+    "pdf compare",
+    "pdf comparison",
+    "javascript",
+    "visual diff",
+    "typescript",
+    "diff testing",
+    "js"
+  ],
+  "author": "Nikita Moshensky",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/moshensky/pdf-visual-diff/issues"
+  },
+  "homepage": "https://github.com/moshensky/pdf-visual-diff#readme",
+  "dependencies": {
+    "glob": "^7.1.6",
+    "gm": "^1.23.1",
+    "pdfmake": "^0.1.68"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/gm": "^1.18.9",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^12.12.57",
+    "@types/pdfmake": "^0.1.16",
+    "@typescript-eslint/eslint-plugin": "^4.1.0",
+    "@typescript-eslint/parser": "^4.1.0",
+    "assert": "^2.0.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.8.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "mocha": "^8.1.3",
+    "pdf-visual-diff": "^0.5.0",
+    "prettier": "^2.1.1",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2"
+  }
+}
