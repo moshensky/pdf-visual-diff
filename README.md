@@ -10,6 +10,8 @@ First download and install [GraphicsMagick](http://www.graphicsmagick.org/) for 
 
 ```sh
 brew install graphicsmagick
+# In case of `Command failed: execvp failed, errno = 2 (No such file or directory)` you might need to install ghostscript as well
+brew install ghostscript
 ```
 
 then use npm:
