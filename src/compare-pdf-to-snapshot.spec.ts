@@ -38,7 +38,7 @@ describe('comparePdfToSnapshot()', () => {
 
   it('custom options', () =>
     comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page-overwrite-opts', {
-      highlightColor: 'red',
+      highlightColor: 'Red',
       highlightStyle: 'XOR',
     }).then((x) => {
       expect(x).to.be.false
@@ -67,7 +67,7 @@ describe('comparePdfToSnapshot()', () => {
           y: 150,
           width: 280,
           height: 200,
-          color: 'blue',
+          color: 'Blue',
         },
         {
           type: 'rectangle-mask',
@@ -75,7 +75,7 @@ describe('comparePdfToSnapshot()', () => {
           y: 400,
           width: 180,
           height: 100,
-          color: 'green',
+          color: 'Green',
         },
       ],
     }).then((x) => expect(x).to.be.true))

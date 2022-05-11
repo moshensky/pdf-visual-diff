@@ -10,16 +10,16 @@ export const mkDiffPath = (path: string): string => {
 }
 
 export type HighlightColor =
-  | 'red'
-  | 'green'
-  | 'blue'
-  | 'opacity'
-  | 'matte'
-  | 'cyan'
-  | 'magenta'
-  | 'yellow'
-  | 'black'
-  | 'gray'
+  | 'Red'
+  | 'Green'
+  | 'Blue'
+  | 'Opacity'
+  | 'Matte'
+  | 'Cyan'
+  | 'Magenta'
+  | 'Yellow'
+  | 'Black'
+  | 'Gray'
 
 export type RectangleMask = Readonly<{
   type: 'rectangle-mask'
@@ -41,7 +41,7 @@ export type CompareImagesOpts = {
 }
 
 const defaultOpts: CompareImagesOpts = {
-  highlightColor: 'black',
+  highlightColor: 'Black',
   highlightStyle: 'Tint',
   tolerance: 0,
   writeDiff: true,
