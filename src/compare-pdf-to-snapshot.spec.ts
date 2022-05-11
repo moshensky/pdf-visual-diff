@@ -52,7 +52,7 @@ describe('comparePdfToSnapshot()', () => {
         './test-data',
         'expected-two-page-overwrite-opts.diff.png',
       )
-      compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }).then((x) =>
+      return compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }).then((x) =>
         expect(x).to.eq(true, 'generated diff image does not match expected one'),
       )
     }))

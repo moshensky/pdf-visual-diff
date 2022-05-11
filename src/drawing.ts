@@ -1,4 +1,4 @@
-import gm from 'gm'
+import { spawn } from 'child_process'
 
 export function drawRectangle(
   imgFilePath: string,
@@ -9,10 +9,26 @@ export function drawRectangle(
   color: string,
   newFilePath?: string,
 ): Promise<void> {
-  return new Promise((resolve, reject) =>
-    gm(imgFilePath)
-      .fill(color)
-      .drawRectangle(x0, y0, x1, y1)
-      .write(newFilePath || imgFilePath, (err) => (err ? reject(err) : resolve())),
-  )
+  return new Promise((resolve, reject) => {
+    const proc = spawn('gm', [
+      'convert',
+      '-fill',
+      color,
+      '-draw',
+      `rectangle ${x0},${y0},${x1},${y1}`,
+      imgFilePath,
+      ...(newFilePath ? [newFilePath] : [imgFilePath]),
+    ])
+    let stderr = ''
+    proc.stderr.on('data', (data) => {
+      stderr += data
+    })
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        return reject(stderr)
+      }
+
+      resolve()
+    })
+  })
 }
