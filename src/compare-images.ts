@@ -43,7 +43,7 @@ export type CompareImagesOpts = {
 const defaultOpts: CompareImagesOpts = {
   highlightColor: 'Black',
   highlightStyle: 'Tint',
-  tolerance: 0,
+  tolerance: 0.0000001,
   writeDiff: true,
   maskRegions: [],
 }
