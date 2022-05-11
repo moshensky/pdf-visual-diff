@@ -38,7 +38,7 @@ describe('comparePdfToSnapshot()', () => {
 
   it('custom options', () =>
     comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page-overwrite-opts', {
-      highlightColor: 'Red',
+      highlightColor: 'red',
       highlightStyle: 'XOR',
     }).then((x) => {
       expect(x).to.be.false
@@ -52,7 +52,7 @@ describe('comparePdfToSnapshot()', () => {
         './test-data',
         'expected-two-page-overwrite-opts.diff.png',
       )
-      compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }).then((x) =>
+      return compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }).then((x) =>
         expect(x).to.eq(true, 'generated diff image does not match expected one'),
       )
     }))
@@ -67,7 +67,7 @@ describe('comparePdfToSnapshot()', () => {
           y: 150,
           width: 280,
           height: 200,
-          color: 'Blue',
+          color: 'blue',
         },
         {
           type: 'rectangle-mask',
@@ -75,7 +75,7 @@ describe('comparePdfToSnapshot()', () => {
           y: 400,
           width: 180,
           height: 100,
-          color: 'Green',
+          color: 'green',
         },
       ],
     }).then((x) => expect(x).to.be.true))
