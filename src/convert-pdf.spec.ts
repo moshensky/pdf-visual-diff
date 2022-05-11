@@ -21,18 +21,17 @@ const expectedTwoPageSecondPageImage = join(testDataDir, 'two-page-expected', 's
 const rip = (): string => Math.random().toString(36).substring(7)
 const rin = (): string => rip() + '.png'
 
-const mkTest = (t: (x: string) => string | Buffer) => (
-  pdfPath: string,
-  expectedImagePath: string,
-): Promise<void> => {
-  const imagePath = join(__dirname, rin())
-  return pdfToImage(t(pdfPath), imagePath).then(() =>
-    compareImages(expectedImagePath, imagePath).then((x) => {
-      unlinkSync(imagePath)
-      expect(x).to.be.true
-    }),
-  )
-}
+const mkTest =
+  (t: (x: string) => string | Buffer) =>
+  (pdfPath: string, expectedImagePath: string): Promise<void> => {
+    const imagePath = join(__dirname, rin())
+    return pdfToImage(t(pdfPath), imagePath).then(() =>
+      compareImages(expectedImagePath, imagePath).then((x) => {
+        unlinkSync(imagePath)
+        expect(x).to.be.true
+      }),
+    )
+  }
 
 describe('pdfToImage() Buffer', () => {
   const test = mkTest((x) => readFileSync(x))
