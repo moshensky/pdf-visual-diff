@@ -3,6 +3,7 @@ import * as assert from 'assert'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
+import mergeImg from 'merge-img'
 
 function convertFromMmToPx(sizeMm: number, dpi: number): number {
   if (sizeMm <= 0 || dpi <= 0) {
@@ -66,12 +67,15 @@ const CMAP_PACKED = true
 const STANDARD_FONT_DATA_URL = path.join(__dirname, '../node_modules/pdfjs-dist/standard_fonts/')
 
 type Pdf2PngOpts = Readonly<{
-  // slower, but better resolution
+  // Slower, but better resolution
   scaleImage: boolean
+  // Combine all page pngs into one
+  combinePages: boolean
 }>
 
 const pdf2PngDefOpts: Pdf2PngOpts = {
   scaleImage: true,
+  combinePages: true,
 }
 
 function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfjsLib.PageViewport {
@@ -83,8 +87,8 @@ function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfj
   // Increase resolution
   const horizontalMm = convertFromPxToMm(viewport.width, 72)
   const verticalMm = convertFromPxToMm(viewport.height, 72)
-  const actualWidth = convertFromMmToPx(horizontalMm, 300)
-  const actualHeight = convertFromMmToPx(verticalMm, 300)
+  const actualWidth = convertFromMmToPx(horizontalMm, 144)
+  const actualHeight = convertFromMmToPx(verticalMm, 144)
   const scale = Math.min(actualWidth / viewport.width, actualHeight / viewport.height)
   return page.getViewport({ scale })
 }
@@ -98,10 +102,9 @@ export async function pdf2png(
     ...pdf2PngDefOpts,
     ...options,
   }
-  // Loading file from file system into typed array.
-  const data = new Uint8Array(Buffer.isBuffer(pdf) ? pdf : fs.readFileSync(pdf))
 
-  // Load the PDF file.
+  // Load PDF
+  const data = new Uint8Array(Buffer.isBuffer(pdf) ? pdf : fs.readFileSync(pdf))
   const loadingTask = pdfjsLib.getDocument({
     data,
     cMapUrl: CMAP_URL,
@@ -111,12 +114,13 @@ export async function pdf2png(
 
   const pdfDocument = await loadingTask.promise
   const parsedPath = path.parse(outputImagePath)
-  const partialName = path.join(parsedPath.dir, parsedPath.name)
   const numPages = pdfDocument.numPages
-  const padMaxLen = numPages.toString().length
 
   const canvasFactory = new NodeCanvasFactory()
   const canvasAndContext = canvasFactory.create(1, 1)
+
+  // Generate images
+  const images: Buffer[] = []
   for (let idx = 1; idx <= numPages; idx += 1) {
     const page = await pdfDocument.getPage(idx)
     const viewport = getPageViewPort(page, opts.scaleImage)
@@ -124,9 +128,29 @@ export async function pdf2png(
     await page.render({ canvasContext: canvasAndContext.context, viewport }).promise
     page.cleanup()
     const image = canvasAndContext.canvas.toBuffer('image/png')
+    images.push(image)
+  }
+
+  // Write images
+  if (opts.combinePages === true) {
     await new Promise<void>((res, rej) =>
-      fs.writeFile(`${partialName}_${String(idx).padStart(padMaxLen, '0')}.png`, image, (err) =>
-        err ? rej(err) : res(),
+      mergeImg(images, { direction: true }).then((img) => {
+        img.write(outputImagePath, (err) => (err ? rej(err) : res()))
+      }),
+    )
+  } else {
+    const partialName = path.join(parsedPath.dir, parsedPath.name)
+    const padMaxLen = numPages.toString().length
+    await Promise.all(
+      images.map(
+        (image, idx) =>
+          new Promise<void>((res, rej) =>
+            fs.writeFile(
+              `${partialName}_${String(idx).padStart(padMaxLen, '0')}.png`,
+              image,
+              (err) => (err ? rej(err) : res()),
+            ),
+          ),
       ),
     )
   }
