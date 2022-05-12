@@ -59,11 +59,11 @@ class NodeCanvasFactory {
 }
 
 // Some PDFs need external cmaps.
-const CMAP_URL = '../node_modules/pdfjs-dist/cmaps/'
+const CMAP_URL = path.join(__dirname, '../node_modules/pdfjs-dist/cmaps/')
 const CMAP_PACKED = true
 
 // Where the standard fonts are located.
-const STANDARD_FONT_DATA_URL = '../node_modules/pdfjs-dist/standard_fonts/'
+const STANDARD_FONT_DATA_URL = path.join(__dirname, '../node_modules/pdfjs-dist/standard_fonts/')
 
 type Pdf2PngOpts = Readonly<{
   // slower, but better resolution
@@ -115,22 +115,19 @@ export async function pdf2png(
   const numPages = pdfDocument.numPages
   const padMaxLen = numPages.toString().length
 
+  const canvasFactory = new NodeCanvasFactory()
+  const canvasAndContext = canvasFactory.create(1, 1)
   for (let idx = 1; idx <= numPages; idx += 1) {
     const page = await pdfDocument.getPage(idx)
     const viewport = getPageViewPort(page, opts.scaleImage)
-    const canvasFactory = new NodeCanvasFactory()
-    const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
-    const renderContext = { canvasContext: canvasAndContext.context, viewport, canvasFactory }
-
-    await page.render(renderContext).promise
-    // Convert the canvas to an image buffer.
-    const image = canvasAndContext.canvas.toBuffer()
+    canvasFactory.reset(canvasAndContext, viewport.width, viewport.height)
+    await page.render({ canvasContext: canvasAndContext.context, viewport }).promise
+    page.cleanup()
+    const image = canvasAndContext.canvas.toBuffer('image/png')
     await new Promise<void>((res, rej) =>
       fs.writeFile(`${partialName}_${String(idx).padStart(padMaxLen, '0')}.png`, image, (err) =>
         err ? rej(err) : res(),
       ),
     )
-    // Release page resources.
-    page.cleanup()
   }
 }
