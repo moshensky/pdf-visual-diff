@@ -7,5 +7,7 @@ const singlePageSmallPdfPath = join(testDataDir, 'single-page-small.pdf')
 
 describe.only('pdf2png()', () => {
   it('should convert', () => pdf2png(singlePageSmallPdfPath, 'output3.png'))
-  it('should convert long pdf', () => pdf2png(monkeyPdfPath, 'monkey1.png'))
+  it('should convert long pdf (scaled)', () =>
+    pdf2png(monkeyPdfPath, 'monkey.png', { scaleImage: false })).timeout(20000)
+  it('should convert long pdf (scaled)', () => pdf2png(monkeyPdfPath, 'monkey1.png')).timeout(20000)
 })

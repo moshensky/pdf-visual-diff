@@ -1,6 +1,7 @@
 import * as Canvas from 'canvas'
 import * as assert from 'assert'
 import * as fs from 'fs'
+import * as path from 'path'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
 
 function convertFromMmToPx(sizeMm: number, dpi: number): number {
@@ -95,7 +96,7 @@ export async function pdf2png(
 ): Promise<void> {
   const opts = {
     ...pdf2PngDefOpts,
-    options,
+    ...options,
   }
   // Loading file from file system into typed array.
   const data = new Uint8Array(Buffer.isBuffer(pdf) ? pdf : fs.readFileSync(pdf))
@@ -109,19 +110,27 @@ export async function pdf2png(
   })
 
   const pdfDocument = await loadingTask.promise
-  // Get the first page.
-  const page = await pdfDocument.getPage(1)
-  const viewport = getPageViewPort(page, opts.scaleImage)
-  const canvasFactory = new NodeCanvasFactory()
-  const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
-  const renderContext = { canvasContext: canvasAndContext.context, viewport, canvasFactory }
+  const parsedPath = path.parse(outputImagePath)
+  const partialName = path.join(parsedPath.dir, parsedPath.name)
+  const numPages = pdfDocument.numPages
+  const padMaxLen = numPages.toString().length
 
-  await page.render(renderContext).promise
-  // Convert the canvas to an image buffer.
-  const image = canvasAndContext.canvas.toBuffer()
-  await new Promise<void>((res, rej) =>
-    fs.writeFile(outputImagePath, image, (err) => (err ? rej(err) : res())),
-  )
-  // Release page resources.
-  page.cleanup()
+  for (let idx = 1; idx <= numPages; idx += 1) {
+    const page = await pdfDocument.getPage(idx)
+    const viewport = getPageViewPort(page, opts.scaleImage)
+    const canvasFactory = new NodeCanvasFactory()
+    const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
+    const renderContext = { canvasContext: canvasAndContext.context, viewport, canvasFactory }
+
+    await page.render(renderContext).promise
+    // Convert the canvas to an image buffer.
+    const image = canvasAndContext.canvas.toBuffer()
+    await new Promise<void>((res, rej) =>
+      fs.writeFile(`${partialName}_${String(idx).padStart(padMaxLen, '0')}.png`, image, (err) =>
+        err ? rej(err) : res(),
+      ),
+    )
+    // Release page resources.
+    page.cleanup()
+  }
 }
