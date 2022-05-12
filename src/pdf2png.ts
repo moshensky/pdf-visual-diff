@@ -63,7 +63,7 @@ const CMAP_PACKED = true
 // Where the standard fonts are located.
 const STANDARD_FONT_DATA_URL = path.join(__dirname, '../node_modules/pdfjs-dist/standard_fonts/')
 
-type Pdf2PngOpts = Readonly<{
+export type Pdf2PngOpts = Readonly<{
   // Slower, but better resolution
   scaleImage: boolean
   // Combine all pages into one png
