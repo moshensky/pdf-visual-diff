@@ -5,10 +5,11 @@ import { existsSync, unlinkSync } from 'fs'
 import { compare } from './compare'
 
 const testDataDir = join(__dirname, './test-data')
+const pdfs = join(testDataDir, 'pdfs')
 
-const singlePageSmallPdfPath = join(testDataDir, 'single-page-small.pdf')
-const singlePagePdfPath = join(testDataDir, 'single-page.pdf')
-const twoPagePdfPath = join(testDataDir, 'two-page.pdf')
+const singlePageSmallPdfPath = join(pdfs, 'single-page-small.pdf')
+const singlePagePdfPath = join(pdfs, 'single-page.pdf')
+const twoPagePdfPath = join(pdfs, 'two-page.pdf')
 
 describe('comparePdfToSnapshot()', () => {
   it('should create new snapshot, when one does not exists', () => {
@@ -63,18 +64,18 @@ describe('comparePdfToSnapshot()', () => {
       maskRegions: [
         {
           type: 'rectangle-mask',
-          x: 120,
-          y: 150,
-          width: 280,
-          height: 200,
+          x: 50,
+          y: 75,
+          width: 140,
+          height: 100,
           color: 'Blue',
         },
         {
           type: 'rectangle-mask',
-          x: 220,
-          y: 400,
-          width: 180,
-          height: 100,
+          x: 110,
+          y: 200,
+          width: 90,
+          height: 50,
           color: 'Green',
         },
       ],
