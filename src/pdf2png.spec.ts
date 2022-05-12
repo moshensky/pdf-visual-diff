@@ -1,10 +1,11 @@
+import { join } from 'path'
 import { pdf2png } from './pdf2png'
 
-describe.only('pdf2png()', () => {
-  // const testDataDir = join(__dirname, './test-data')
-  // const expectedImage = join(testDataDir, 'sample-image-with-rectangle-expected.png')
-  // const sampleImage = join(testDataDir, 'sample-image.png')
-  // const resultImage = join(testDataDir, 'sample-image-with-rectangle-diff.png')
+const testDataDir = join(__dirname, './test-data')
+const monkeyPdfPath = join(testDataDir, 'compressed.tracemonkey-pldi-09.pdf')
+const singlePageSmallPdfPath = join(testDataDir, 'single-page-small.pdf')
 
-  it('should convert', () => pdf2png())
+describe.only('pdf2png()', () => {
+  it('should convert', () => pdf2png(singlePageSmallPdfPath, 'output3.png'))
+  it('should convert long pdf', () => pdf2png(monkeyPdfPath, 'monkey1.png'))
 })

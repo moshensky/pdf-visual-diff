@@ -2,7 +2,21 @@ import * as Canvas from 'canvas'
 import * as assert from 'assert'
 import * as fs from 'fs'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
-import { join } from 'path'
+
+function convertFromMmToPx(sizeMm: number, dpi: number): number {
+  if (sizeMm <= 0 || dpi <= 0) {
+    return 0
+  }
+  const sizeInch = sizeMm / 25.4
+  return Math.round(sizeInch * dpi)
+}
+function convertFromPxToMm(sizePx: number, dpi: number): number {
+  if (sizePx <= 0 || dpi <= 0) {
+    return 0
+  }
+  const sizeInch = sizePx / dpi
+  return Math.round(sizeInch * 25.4)
+}
 
 type CanvasAndContext = {
   canvas: Canvas.Canvas
@@ -50,49 +64,64 @@ const CMAP_PACKED = true
 // Where the standard fonts are located.
 const STANDARD_FONT_DATA_URL = '../node_modules/pdfjs-dist/standard_fonts/'
 
-// Loading file from file system into typed array.
-console.log(__dirname)
-const pdfPath = './test-data/single-page-small.pdf'
-const data = new Uint8Array(fs.readFileSync(join(__dirname, pdfPath)))
+type Pdf2PngOpts = Readonly<{
+  // slower, but better resolution
+  scaleImage: boolean
+}>
 
-// Load the PDF file.
-const loadingTask = pdfjsLib.getDocument({
-  data,
-  cMapUrl: CMAP_URL,
-  cMapPacked: CMAP_PACKED,
-  standardFontDataUrl: STANDARD_FONT_DATA_URL,
-})
+const pdf2PngDefOpts: Pdf2PngOpts = {
+  scaleImage: true,
+}
 
-export async function pdf2png(): Promise<void> {
-  try {
-    const pdfDocument = await loadingTask.promise
-    console.log('# PDF document loaded.')
-    // Get the first page.
-    const page = await pdfDocument.getPage(1)
-    // Render the page on a Node canvas with 100% scale.
-    const viewport = page.getViewport({ scale: 1.0 })
-    const canvasFactory = new NodeCanvasFactory()
-    const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
-    const renderContext = {
-      canvasContext: canvasAndContext.context,
-      viewport,
-      canvasFactory,
-    }
-
-    const renderTask = page.render(renderContext)
-    await renderTask.promise
-    // Convert the canvas to an image buffer.
-    const image = canvasAndContext.canvas.toBuffer()
-    fs.writeFile('output.png', image, function (error) {
-      if (error) {
-        console.error('Error: ' + error)
-      } else {
-        console.log('Finished converting first page of PDF file to a PNG image.')
-      }
-    })
-    // Release page resources.
-    page.cleanup()
-  } catch (reason) {
-    console.log(reason)
+function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfjsLib.PageViewport {
+  const viewport = page.getViewport({ scale: 1.0 })
+  if (scaleImage === false) {
+    return viewport
   }
+
+  // Increase resolution
+  const horizontalMm = convertFromPxToMm(viewport.width, 72)
+  const verticalMm = convertFromPxToMm(viewport.height, 72)
+  const actualWidth = convertFromMmToPx(horizontalMm, 300)
+  const actualHeight = convertFromMmToPx(verticalMm, 300)
+  const scale = Math.min(actualWidth / viewport.width, actualHeight / viewport.height)
+  return page.getViewport({ scale })
+}
+
+export async function pdf2png(
+  pdf: string | Buffer,
+  outputImagePath: string,
+  options: Partial<Pdf2PngOpts> = {},
+): Promise<void> {
+  const opts = {
+    ...pdf2PngDefOpts,
+    options,
+  }
+  // Loading file from file system into typed array.
+  const data = new Uint8Array(Buffer.isBuffer(pdf) ? pdf : fs.readFileSync(pdf))
+
+  // Load the PDF file.
+  const loadingTask = pdfjsLib.getDocument({
+    data,
+    cMapUrl: CMAP_URL,
+    cMapPacked: CMAP_PACKED,
+    standardFontDataUrl: STANDARD_FONT_DATA_URL,
+  })
+
+  const pdfDocument = await loadingTask.promise
+  // Get the first page.
+  const page = await pdfDocument.getPage(1)
+  const viewport = getPageViewPort(page, opts.scaleImage)
+  const canvasFactory = new NodeCanvasFactory()
+  const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
+  const renderContext = { canvasContext: canvasAndContext.context, viewport, canvasFactory }
+
+  await page.render(renderContext).promise
+  // Convert the canvas to an image buffer.
+  const image = canvasAndContext.canvas.toBuffer()
+  await new Promise<void>((res, rej) =>
+    fs.writeFile(outputImagePath, image, (err) => (err ? rej(err) : res())),
+  )
+  // Release page resources.
+  page.cleanup()
 }
