@@ -45,9 +45,6 @@ class NodeCanvasFactory {
 
   destroy(canvasAndContext: CanvasAndContext): void {
     assert.ok(canvasAndContext.canvas, 'Canvas is not specified')
-
-    // Zeroing the width and height cause Firefox to release graphics
-    // resources immediately, which can greatly reduce memory consumption.
     canvasAndContext.canvas.width = 0
     canvasAndContext.canvas.height = 0
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -69,7 +66,7 @@ const STANDARD_FONT_DATA_URL = path.join(__dirname, '../node_modules/pdfjs-dist/
 type Pdf2PngOpts = Readonly<{
   // Slower, but better resolution
   scaleImage: boolean
-  // Combine all page pngs into one
+  // Combine all pages into one png
   combinePages: boolean
 }>
 
