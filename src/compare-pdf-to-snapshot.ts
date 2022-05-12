@@ -1,6 +1,6 @@
 import { join } from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
-import { pdfToImage } from './convert-pdf'
+import { pdf2png } from './pdf2png'
 import { compareImages, CompareImagesOpts } from './compare-images'
 
 export const snapshotsDirName = '__snapshots__'
@@ -30,11 +30,11 @@ export const comparePdfToSnapshot = (
   const snapshotPath = join(dir, snapshotName + '.png')
 
   if (!existsSync(snapshotPath)) {
-    return pdfToImage(pdf, snapshotPath).then(() => true)
+    return pdf2png(pdf, snapshotPath).then(() => true)
   }
 
   const newSnapshotPath = join(dir, snapshotName + '.new.png')
-  return pdfToImage(pdf, newSnapshotPath).then(() =>
+  return pdf2png(pdf, newSnapshotPath).then(() =>
     compareImages(newSnapshotPath, snapshotPath, compareImageOpts).then((areEqual) => {
       if (areEqual === true) {
         unlinkSync(newSnapshotPath)

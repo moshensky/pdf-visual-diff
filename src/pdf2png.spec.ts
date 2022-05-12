@@ -1,7 +1,7 @@
 import { join, parse } from 'path'
 import { pdf2png, Pdf2PngOpts } from './pdf2png'
 import { compareImages } from './compare-images'
-import { unlinkSync } from 'fs'
+import { unlinkSync, readFileSync } from 'fs'
 import { expect } from 'chai'
 
 const testDataDir = join(__dirname, './test-data')
@@ -32,11 +32,12 @@ const testPdf2png = (
   )
 }
 
-describe.only('pdf2png()', () => {
+describe('pdf2png()', () => {
   it('single-page-small.pdf', () => testPdf2png(singlePageSmall, 'single-page-small.png'))
   it('single-page.pdf', () => testPdf2png(singlePage, 'single-page.png'))
   it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview.png')).timeout(40000)
   it('two-page.pdf', () => testPdf2png(twoPage, 'two-page.png'))
+  it('two-page.pdf buffer', () => testPdf2png(readFileSync(twoPage), 'two-page.png'))
 
   it('two-page.pdf png per page and without scaling', () => {
     const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_1.png')
