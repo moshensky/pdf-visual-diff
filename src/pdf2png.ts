@@ -143,7 +143,7 @@ export async function pdf2png(
         (image, idx) =>
           new Promise<void>((res, rej) =>
             fs.writeFile(
-              `${partialName}_${String(idx).padStart(padMaxLen, '0')}.png`,
+              `${partialName}_${String(idx + 1).padStart(padMaxLen, '0')}.png`,
               image,
               (err) => (err ? rej(err) : res()),
             ),
