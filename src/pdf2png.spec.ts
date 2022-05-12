@@ -21,7 +21,6 @@ const testPdf2png = (
   expectedImageName: string,
   opts: Partial<Pdf2PngOpts> = {},
 ): Promise<void> => {
-  // uncomment ot update expected images
   const expectedImagePath = join(expectedDir, expectedImageName)
   const imagePath = join(__dirname, rin())
   return pdf2png(pdf, imagePath, opts).then(() =>
