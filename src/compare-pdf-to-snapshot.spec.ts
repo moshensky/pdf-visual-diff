@@ -1,4 +1,4 @@
-import { comparePdfToSnapshot, snapshotsDirName } from './compare-pdf-to-snapshot'
+import { comparePdfToSnapshot, snapshotsDirName, CompareOptions } from './compare-pdf-to-snapshot'
 import { join } from 'path'
 import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
@@ -58,9 +58,8 @@ describe('comparePdfToSnapshot()', () => {
       )
     }))
 
-  // TODO: improve test by generating random thingy instead of the first shape in the single page pdf
-  it('should succeed comparing masked image', () =>
-    comparePdfToSnapshot(singlePagePdfPath, __dirname, 'rectangle-masks', {
+  describe('maskRegions', () => {
+    const opts: Partial<CompareOptions> = {
       maskRegions: [
         {
           type: 'rectangle-mask',
@@ -79,5 +78,32 @@ describe('comparePdfToSnapshot()', () => {
           color: 'Green',
         },
       ],
-    }).then((x) => expect(x).to.be.true))
+    }
+
+    it('should succeed comparing masked image', () =>
+      comparePdfToSnapshot(singlePagePdfPath, __dirname, 'rectangle-masks', opts).then(
+        (x) => expect(x).to.be.true,
+      ))
+
+    it('should create initial masked image', () => {
+      const snapshotName = 'initial-rectangle-masks'
+      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      const expectedImagePath = join(
+        __dirname,
+        './test-data',
+        'expected-initial-rectangle-masks.png',
+      )
+      if (existsSync(snapshotPath)) {
+        unlinkSync(snapshotPath)
+      }
+      return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
+        .then((x) => expect(x).to.be.true)
+        .then(() =>
+          compare(expectedImagePath, snapshotPath, { tolerance: 0 }).then((x) =>
+            expect(x).to.eq(true, 'generated initial rectangle masks does not match expected one'),
+          ),
+        )
+        .then(() => unlinkSync(snapshotPath))
+    })
+  })
 })
