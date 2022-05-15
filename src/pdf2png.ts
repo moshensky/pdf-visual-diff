@@ -3,7 +3,7 @@ import * as assert from 'assert'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
-import mergeImg from 'merge-img'
+import { mergeImages } from './merge-images'
 
 function convertFromMmToPx(sizeMm: number, dpi: number): number {
   if (sizeMm <= 0 || dpi <= 0) {
@@ -131,7 +131,7 @@ export async function pdf2png(
   // Write images
   if (opts.combinePages === true) {
     await new Promise<void>((res, rej) =>
-      mergeImg(images, { direction: true }).then((img) => {
+      mergeImages(images).then((img) => {
         img.write(outputImagePath, (err) => (err ? rej(err) : res()))
       }),
     )
