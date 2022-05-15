@@ -1,12 +1,11 @@
-import Jimp, { read } from 'jimp'
+import Jimp from 'jimp'
 
 type ImgData = Readonly<{
   img: Jimp
   y: number
 }>
 
-export const mergeImages = async (images: ReadonlyArray<Buffer>): Promise<Jimp> => {
-  const imgs: ReadonlyArray<Jimp> = await Promise.all(images.map((x) => read(x)))
+export const mergeImages = async (imgs: ReadonlyArray<Jimp>): Promise<Jimp> => {
   let imgHeight = 0
   const imgData: ImgData[] = imgs.map((img) => {
     const res = { img, y: imgHeight }

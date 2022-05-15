@@ -26,9 +26,11 @@ describe('comparePdfToSnapshot()', () => {
   })
 
   it('should pass', () =>
-    comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page').then((x) => expect(x).to.be.true))
+    comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page-success').then(
+      (x) => expect(x).to.be.true,
+    ))
 
-  it('should fail and create diff and new versions of expected image', () =>
+  it('should fail and create diff with new version', () =>
     comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page').then((x) => {
       expect(x).to.be.false
       const snapshotDiffPath = join(__dirname, snapshotsDirName, 'two-page.diff.png')

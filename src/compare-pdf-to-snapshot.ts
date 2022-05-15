@@ -1,8 +1,8 @@
 import { join } from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
-import { pdf2png } from './pdf2png'
+import { pdf2png, writeImages } from './pdf2png'
 import { compareImages, CompareImagesOpts, HighlightColor } from './compare-images'
-import Jimp, { read } from 'jimp'
+import Jimp from 'jimp'
 
 export type RectangleMask = Readonly<{
   type: 'rectangle-mask'
@@ -27,16 +27,23 @@ const colorToNum: Record<HighlightColor, number> = {
   Gray: 0xbfbfbfff,
 }
 
-const maskImgWithRegions = async (imagePath: string, regions: MaskRegions): Promise<void> => {
-  const baseImage = await read(imagePath)
-  regions.forEach(({ type, x, y, width, height, color }) =>
-    type === 'rectangle-mask'
-      ? baseImage.composite(new Jimp(width, height, colorToNum[color]), x, y)
-      : undefined,
-  )
+const maskImgWithRegions =
+  (regions: MaskRegions) =>
+  (images: ReadonlyArray<Jimp>): ReadonlyArray<Jimp> => {
+    // For the moment public api exposes pdf to one image generation
+    if (images.length === 1) {
+      const baseImage = images[0]
+      regions.forEach(({ type, x, y, width, height, color }) =>
+        type === 'rectangle-mask'
+          ? baseImage.composite(new Jimp(width, height, colorToNum[color]), x, y)
+          : undefined,
+      )
 
-  await baseImage.writeAsync(imagePath)
-}
+      return [baseImage]
+    }
+
+    return images
+  }
 
 export type CompareOptions = CompareImagesOpts & {
   maskRegions: MaskRegions
@@ -67,14 +74,16 @@ export const comparePdfToSnapshot = (
   const snapshotPath = join(dir, snapshotName + '.png')
 
   if (!existsSync(snapshotPath)) {
-    return pdf2png(pdf, snapshotPath)
-      .then(() => maskImgWithRegions(snapshotPath, maskRegions || []))
+    return pdf2png(pdf)
+      .then(maskImgWithRegions(maskRegions || []))
+      .then(writeImages(snapshotPath))
       .then(() => true)
   }
 
   const newSnapshotPath = join(dir, snapshotName + '.new.png')
-  return pdf2png(pdf, newSnapshotPath)
-    .then(() => maskImgWithRegions(newSnapshotPath, maskRegions || []))
+  return pdf2png(pdf)
+    .then(maskImgWithRegions(maskRegions || []))
+    .then(writeImages(newSnapshotPath))
     .then(() =>
       compareImages(newSnapshotPath, snapshotPath, restOpts).then((areEqual) => {
         if (areEqual === true) {

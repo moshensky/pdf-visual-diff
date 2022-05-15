@@ -1,5 +1,5 @@
 import { join, parse } from 'path'
-import { pdf2png, Pdf2PngOpts } from './pdf2png'
+import { pdf2png, writeImages } from './pdf2png'
 import { compareImages } from './compare-images'
 import { unlinkSync, readFileSync } from 'fs'
 import { expect } from 'chai'
@@ -16,19 +16,17 @@ const expectedDir = join(testDataDir, 'pdf2png-expected')
 const rip = (prefix = ''): string => prefix + Math.random().toString(36).substring(7)
 const rin = (): string => rip('img_') + '.png'
 
-const testPdf2png = (
-  pdf: string | Buffer,
-  expectedImageName: string,
-  opts: Partial<Pdf2PngOpts> = {},
-): Promise<void> => {
+const testPdf2png = (pdf: string | Buffer, expectedImageName: string): Promise<void> => {
   const expectedImagePath = join(expectedDir, expectedImageName)
   const imagePath = join(__dirname, rin())
-  return pdf2png(pdf, imagePath, opts).then(() =>
-    compareImages(expectedImagePath, imagePath).then((x) => {
-      unlinkSync(imagePath)
-      expect(x).to.be.true
-    }),
-  )
+  return pdf2png(pdf)
+    .then(writeImages(imagePath))
+    .then(() =>
+      compareImages(expectedImagePath, imagePath).then((x) => {
+        unlinkSync(imagePath)
+        expect(x).to.be.true
+      }),
+    )
 }
 
 describe('pdf2png()', () => {
@@ -44,20 +42,18 @@ describe('pdf2png()', () => {
     const imagesPath = parse(join(__dirname, rin()))
     const image1Path = join(imagesPath.dir, imagesPath.name + '_1' + imagesPath.ext)
     const image2Path = join(imagesPath.dir, imagesPath.name + '_2' + imagesPath.ext)
-    return pdf2png(twoPage, join(__dirname, imagesPath.base), {
-      scaleImage: false,
-      combinePages: false,
-    }).then(() =>
-      Promise.all([
-        compareImages(expectedImage1Path, image1Path).then((x) => {
-          unlinkSync(image1Path)
-          expect(x).to.be.true
-        }),
-        compareImages(expectedImage2Path, image2Path).then((x) => {
-          unlinkSync(image2Path)
-          expect(x).to.be.true
-        }),
-      ]),
-    )
+    return pdf2png(twoPage, { scaleImage: false })
+      .then(writeImages(join(__dirname, imagesPath.base), false))
+      .then(() =>
+        Promise.all([
+          compareImages(expectedImage1Path, image1Path),
+          compareImages(expectedImage2Path, image2Path),
+        ]),
+      )
+      .then((results) => {
+        results.forEach((x) => expect(x).to.be.true)
+        unlinkSync(image1Path)
+        unlinkSync(image2Path)
+      })
   })
 })
