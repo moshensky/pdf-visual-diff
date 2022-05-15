@@ -1,3 +1,4 @@
+import { read } from 'jimp'
 import { comparePdfToSnapshot, snapshotsDirName, CompareOptions } from './compare-pdf-to-snapshot'
 import { join } from 'path'
 import { expect } from 'chai'
@@ -79,9 +80,13 @@ describe('comparePdfToSnapshot()', () => {
       }
       return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
         .then((x) => expect(x).to.be.true)
-        .then(() =>
-          compareImages(expectedImagePath, snapshotPath, { tolerance: 0 }).then((x) =>
-            expect(x).to.eq(true, 'generated initial rectangle masks does not match expected one'),
+        .then(() => read(snapshotPath))
+        .then((img) =>
+          compareImages(expectedImagePath, [img], { tolerance: 0 }).then((x) =>
+            expect(x.equal).to.eq(
+              true,
+              'generated initial rectangle masks does not match expected one',
+            ),
           ),
         )
         .then(() => unlinkSync(snapshotPath))

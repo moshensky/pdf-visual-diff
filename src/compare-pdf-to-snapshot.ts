@@ -59,6 +59,7 @@ export const snapshotsDirName = '__snapshots__'
  * @param compareOptions - image comparison options
  * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
  * @param compareOptions.writeDiff - flag to enable/disable diff file creation, defaults to true
+ * @param compareOptions.maskRegions - mask predefined regions, i.e. when there are parts of the pdf that change between tests
  */
 export const comparePdfToSnapshot = (
   pdf: string | Buffer,
@@ -80,20 +81,22 @@ export const comparePdfToSnapshot = (
       .then(() => true)
   }
 
-  const newSnapshotPath = join(dir, snapshotName + '.new.png')
   return pdf2png(pdf)
     .then(maskImgWithRegions(maskRegions || []))
-    .then(writeImages(newSnapshotPath))
-    .then(() =>
-      compareImages(newSnapshotPath, snapshotPath, restOpts).then((areEqual) => {
-        if (areEqual === true) {
-          unlinkSync(newSnapshotPath)
-          const diffSnapshotPath = join(dir, snapshotName + '.diff.png')
+    .then((images) =>
+      compareImages(snapshotPath, images, restOpts).then((result) => {
+        const diffSnapshotPath = join(dir, snapshotName + '.diff.png')
+        if (result.equal) {
           if (existsSync(diffSnapshotPath)) {
             unlinkSync(diffSnapshotPath)
           }
+          return true
         }
-        return areEqual
+
+        const newSnapshotPath = join(dir, snapshotName + '.new.png')
+        return writeImages(newSnapshotPath)(images).then(() =>
+          result.diffs[0].diff.writeAsync(diffSnapshotPath).then(() => false),
+        )
       }),
     )
 }

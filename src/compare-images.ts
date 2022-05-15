@@ -1,4 +1,5 @@
 import Jimp, { read } from 'jimp'
+import { mergeImages } from './merge-images'
 
 const diffToken = '.diff'
 export const mkDiffPath = (path: string): string => {
@@ -21,31 +22,45 @@ export type HighlightColor =
 
 export type CompareImagesOpts = {
   tolerance: number
-  writeDiff: boolean
 }
 
 const defaultOpts: CompareImagesOpts = {
   tolerance: 0,
-  writeDiff: true,
 }
+
+type CompareOK = {
+  equal: true
+}
+
+type CompareKO = {
+  equal: false
+  diffs: ReadonlyArray<{
+    page: number
+    diff: Jimp
+  }>
+}
+
+type CompareImagesResult = CompareOK | CompareKO
 
 export const compareImages = async (
   expectedImagePath: string,
-  resultImagePath: string,
+  images: ReadonlyArray<Jimp>,
   compareImagesOpts: Partial<CompareImagesOpts> = {},
-): Promise<boolean> => {
-  const { tolerance, writeDiff } = {
+): Promise<CompareImagesResult> => {
+  const { tolerance } = {
     ...defaultOpts,
     ...compareImagesOpts,
   }
-  const [img1, img2] = await Promise.all([read(expectedImagePath), read(resultImagePath)])
-  const diff = Jimp.diff(img1, img2, tolerance)
+  const expectedImg = await read(expectedImagePath)
+  // Multi image comparison not implemented!
+  const img = mergeImages(images)
+  const diff = Jimp.diff(expectedImg, img, tolerance)
   if (diff.percent > 0) {
-    if (writeDiff) {
-      await diff.image.writeAsync(mkDiffPath(resultImagePath))
+    return {
+      equal: false,
+      diffs: [{ page: 1, diff: diff.image }],
     }
-    return false
   }
 
-  return true
+  return { equal: true }
 }

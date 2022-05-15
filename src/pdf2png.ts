@@ -132,7 +132,7 @@ export const writeImages =
   (images: ReadonlyArray<Jimp>): Promise<void> => {
     if (combinePages === true) {
       return mergeImages(images)
-        .then((img) => img.writeAsync(outputImagePath))
+        .writeAsync(outputImagePath)
         .then(() => undefined)
     }
 

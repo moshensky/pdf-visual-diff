@@ -5,7 +5,7 @@ type ImgData = Readonly<{
   y: number
 }>
 
-export const mergeImages = async (imgs: ReadonlyArray<Jimp>): Promise<Jimp> => {
+export const mergeImages = (imgs: ReadonlyArray<Jimp>): Jimp => {
   let imgHeight = 0
   const imgData: ImgData[] = imgs.map((img) => {
     const res = { img, y: imgHeight }
