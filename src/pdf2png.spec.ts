@@ -1,8 +1,10 @@
-import { join, parse } from 'path'
-import { pdf2png, Pdf2PngOpts } from './pdf2png'
+import { join } from 'path'
+import { pdf2png } from './pdf2png'
 import { compareImages } from './compare-images'
-import { unlinkSync, readFileSync } from 'fs'
+import fs0 from 'fs'
 import { expect } from 'chai'
+
+const fs = fs0.promises
 
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
@@ -13,20 +15,11 @@ const twoPage = join(pdfs, 'two-page.pdf')
 
 const expectedDir = join(testDataDir, 'pdf2png-expected')
 
-const rip = (prefix = ''): string => prefix + Math.random().toString(36).substring(7)
-const rin = (): string => rip('img_') + '.png'
-
-const testPdf2png = (
-  pdf: string | Buffer,
-  expectedImageName: string,
-  opts: Partial<Pdf2PngOpts> = {},
-): Promise<void> => {
+const testPdf2png = (pdf: string | Buffer, expectedImageName: string): Promise<void> => {
   const expectedImagePath = join(expectedDir, expectedImageName)
-  const imagePath = join(__dirname, rin())
-  return pdf2png(pdf, imagePath, opts).then(() =>
-    compareImages(expectedImagePath, imagePath).then((x) => {
-      unlinkSync(imagePath)
-      expect(x).to.be.true
+  return pdf2png(pdf).then((imgs) =>
+    compareImages(expectedImagePath, imgs).then((x) => {
+      expect(x.equal).to.be.true
     }),
   )
 }
@@ -36,28 +29,20 @@ describe('pdf2png()', () => {
   it('single-page.pdf', () => testPdf2png(singlePage, 'single-page.png'))
   it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview.png')).timeout(40000)
   it('two-page.pdf', () => testPdf2png(twoPage, 'two-page.png'))
-  it('two-page.pdf buffer', () => testPdf2png(readFileSync(twoPage), 'two-page.png'))
+  it('two-page.pdf buffer', () => fs.readFile(twoPage).then((x) => testPdf2png(x, 'two-page.png')))
 
   it('two-page.pdf png per page and without scaling', () => {
     const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_1.png')
     const expectedImage2Path = join(expectedDir, 'two-page_png_per_page_2.png')
-    const imagesPath = parse(join(__dirname, rin()))
-    const image1Path = join(imagesPath.dir, imagesPath.name + '_1' + imagesPath.ext)
-    const image2Path = join(imagesPath.dir, imagesPath.name + '_2' + imagesPath.ext)
-    return pdf2png(twoPage, join(__dirname, imagesPath.base), {
-      scaleImage: false,
-      combinePages: false,
-    }).then(() =>
-      Promise.all([
-        compareImages(expectedImage1Path, image1Path).then((x) => {
-          unlinkSync(image1Path)
-          expect(x).to.be.true
-        }),
-        compareImages(expectedImage2Path, image2Path).then((x) => {
-          unlinkSync(image2Path)
-          expect(x).to.be.true
-        }),
-      ]),
-    )
+    return pdf2png(twoPage, { scaleImage: false })
+      .then((imgs) =>
+        Promise.all([
+          compareImages(expectedImage1Path, [imgs[0]]),
+          compareImages(expectedImage2Path, [imgs[1]]),
+        ]),
+      )
+      .then((results) => {
+        results.forEach((x) => expect(x.equal).to.be.true)
+      })
   })
 })

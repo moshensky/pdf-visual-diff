@@ -3,6 +3,7 @@ import * as assert from 'assert'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
+import Jimp, { read } from 'jimp'
 import { mergeImages } from './merge-images'
 
 function convertFromMmToPx(sizeMm: number, dpi: number): number {
@@ -66,13 +67,10 @@ const STANDARD_FONT_DATA_URL = path.join(__dirname, '../node_modules/pdfjs-dist/
 export type Pdf2PngOpts = Readonly<{
   // Slower, but better resolution
   scaleImage: boolean
-  // Combine all pages into one png
-  combinePages: boolean
 }>
 
 const pdf2PngDefOpts: Pdf2PngOpts = {
   scaleImage: true,
-  combinePages: true,
 }
 
 function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfjsLib.PageViewport {
@@ -92,9 +90,8 @@ function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfj
 
 export async function pdf2png(
   pdf: string | Buffer,
-  outputImagePath: string,
   options: Partial<Pdf2PngOpts> = {},
-): Promise<void> {
+): Promise<ReadonlyArray<Jimp>> {
   const opts = {
     ...pdf2PngDefOpts,
     ...options,
@@ -110,7 +107,6 @@ export async function pdf2png(
   })
 
   const pdfDocument = await loadingTask.promise
-  const parsedPath = path.parse(outputImagePath)
   const numPages = pdfDocument.numPages
 
   const canvasFactory = new NodeCanvasFactory()
@@ -128,23 +124,24 @@ export async function pdf2png(
     images.push(image)
   }
 
-  // Write images
-  if (opts.combinePages === true) {
-    await mergeImages(images).then((img) => img.writeAsync(outputImagePath))
-  } else {
-    const partialName = path.join(parsedPath.dir, parsedPath.name)
-    const padMaxLen = numPages.toString().length
-    await Promise.all(
-      images.map(
-        (image, idx) =>
-          new Promise<void>((res, rej) =>
-            fs.writeFile(
-              `${partialName}_${String(idx + 1).padStart(padMaxLen, '0')}.png`,
-              image,
-              (err) => (err ? rej(err) : res()),
-            ),
-          ),
-      ),
-    )
-  }
+  return Promise.all(images.map((x) => read(x)))
 }
+
+export const writeImages =
+  (outputImagePath: string, combinePages = true) =>
+  (images: ReadonlyArray<Jimp>): Promise<void> => {
+    if (combinePages === true) {
+      return mergeImages(images)
+        .writeAsync(outputImagePath)
+        .then(() => undefined)
+    }
+
+    const parsedPath = path.parse(outputImagePath)
+    const partialName = path.join(parsedPath.dir, parsedPath.name)
+    const padMaxLen = images.length.toString().length
+    return Promise.all(
+      images.map((img, idx) =>
+        img.writeAsync(`${partialName}_${String(idx + 1).padStart(padMaxLen, '0')}.png`),
+      ),
+    ).then(() => undefined)
+  }
