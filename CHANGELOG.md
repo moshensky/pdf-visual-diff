@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0 / 2022-05-16
+
+### 🐛 Bug Fix
+
+- [#40](https://github.com/moshensky/pdf-visual-diff/pull/40): masked areas not in initial file
+
+### :tada: Enhancements
+
+- Graphicsmagick is not needed any more, but this change requires all snapshots to be regenerated. Please see tools section from README.md for quick approval of new snapshots
+- Added cli tools to approve and discard snapshots in bulk
+  
+
 ## 0.5.0 / 2020-10-31
 
 ### :tada: Enhancements

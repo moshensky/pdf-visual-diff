@@ -4,17 +4,9 @@
 [![code style: prettier][prettier-badge-url]][prettier-url]
 ![Pull Request CI/CD](https://github.com/moshensky/pdf-visual-diff/workflows/Pull%20Request%20CI/CD/badge.svg?branch=master)
 
-## Getting started
+Library for testing visual regression of PDFs. It uses [pdf.js](https://github.com/mozilla/pdf.js) for conversion of a pdf to png (in node pdf.js depends on [canvas](https://github.com/Automattic/node-canvas)). Than comparison is happening via [jimp](https://github.com/oliver-moran/jimp).
 
-First download and install [GraphicsMagick](http://www.graphicsmagick.org/) for your platform. For macOS you can simply use [Homebrew](http://mxcl.github.io/homebrew/) and do:
-
-```sh
-brew install graphicsmagick
-# In case of `Command failed: execvp failed, errno = 2 (No such file or directory)` you might need to install ghostscript as well
-brew install ghostscript
-```
-
-then use npm:
+## Installation
 
 ```sh
 npm install -D pdf-visual-diff
@@ -35,18 +27,15 @@ This package exports single function `comparePdfToSnapshot`. With the following 
  * @param pdf - path to pdf file or pdf loaded as Buffer
  * @param snapshotDir - path to a directory where __snapshots__ folder is going to be created
  * @param snapshotName - uniq name of a snapshot in the above path
- * @param compareImageOpts - settings for image comparation
- * @param compareImageOpts.highlightColor - color for differences in the diff image, defaults to Black
- * @param compareImageOpts.highlightStyle - highlight style as documented by the {@link http://www.graphicsmagick.org/GraphicsMagick.html#details-highlight-style gm package}, defaults to Tint
- * @param compareImageOpts.tolerance - number value for error tolerance, defaults to 0
- * @param compareImageOpts.writeDiff - flag to enable/disable diff file creation, defaults to true
- * @param compareImageOpts.maskRegions - exclude regions from the diff by masking them with solid rectangles
+ * @param compareOptions - image comparison options
+ * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
+ * @param compareOptions.maskRegions - mask predefined regions, i.e. when there are parts of the pdf that change between tests
  */
 type ComparePdfToSnapshot = (
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
-  compareImageOpts?: Partial<CompareImagesOpts>,
+  compareImageOpts: Partial<CompareOptions> = {},
 ) => Promise<boolean>
 ```
 
@@ -75,6 +64,40 @@ describe('test pdf report visual regression', () => {
     ))
 })
 ```
+
+## Tools
+
+pdf-visual-diff provides scripts for approving all new snapshots or discarding them. Add to your `scripts` section in `package.json`
+
+```sh
+    "test:pdf-approve": "pdf-visual-diff approve",
+    "test:pdf-discard": "pdf-visual-diff discard",
+```
+
+```sh
+pdf-visual-diff approve
+
+Approve new snapshots
+
+Options:
+      --help                Show help                                  [boolean]
+      --version             Show version number                        [boolean]
+  -p, --path                                                      [default: "."]
+  -s, --snapshots-dir-name                            [default: "__snapshots__"]
+```
+
+```sh
+pdf-visual-diff discard
+
+Discard new snapshots and diffs
+
+Options:
+      --help                Show help                                  [boolean]
+      --version             Show version number                        [boolean]
+  -p, --path                                                      [default: "."]
+  -s, --snapshots-dir-name                            [default: "__snapshots__"]
+```
+
 
 ## Usage with Jest
 

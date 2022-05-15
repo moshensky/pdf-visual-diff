@@ -58,7 +58,6 @@ export const snapshotsDirName = '__snapshots__'
  * @param snapshotName - uniq name of a snapshot in the above path
  * @param compareOptions - image comparison options
  * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
- * @param compareOptions.writeDiff - flag to enable/disable diff file creation, defaults to true
  * @param compareOptions.maskRegions - mask predefined regions, i.e. when there are parts of the pdf that change between tests
  */
 export const comparePdfToSnapshot = (
