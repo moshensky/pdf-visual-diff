@@ -1,4 +1,4 @@
-import { compare, CompareOptions, HighlightStyle } from './compare'
+import Jimp, { read } from 'jimp'
 
 const diffToken = '.diff'
 export const mkDiffPath = (path: string): string => {
@@ -20,39 +20,32 @@ export type HighlightColor =
   | 'Gray'
 
 export type CompareImagesOpts = {
-  highlightColor: HighlightColor
-  highlightStyle: HighlightStyle
   tolerance: number
   writeDiff: boolean
 }
 
 const defaultOpts: CompareImagesOpts = {
-  highlightColor: 'Black',
-  highlightStyle: 'Tint',
   tolerance: 0,
   writeDiff: true,
 }
 
-export const compareImages = (
+export const compareImages = async (
   expectedImagePath: string,
   resultImagePath: string,
   compareImagesOpts: Partial<CompareImagesOpts> = {},
 ): Promise<boolean> => {
-  const { tolerance, writeDiff, highlightColor, highlightStyle } = {
+  const { tolerance, writeDiff } = {
     ...defaultOpts,
     ...compareImagesOpts,
   }
-  return compare(expectedImagePath, resultImagePath, { tolerance }).then((isEqual) => {
-    if (writeDiff === true && isEqual === false) {
-      const options: CompareOptions = {
-        file: mkDiffPath(resultImagePath),
-        highlightColor,
-        highlightStyle,
-        tolerance,
-      }
-      return compare(expectedImagePath, resultImagePath, options)
+  const [img1, img2] = await Promise.all([read(expectedImagePath), read(resultImagePath)])
+  const diff = Jimp.diff(img1, img2, tolerance)
+  if (diff.percent > 0) {
+    if (writeDiff) {
+      await diff.image.writeAsync(mkDiffPath(resultImagePath))
     }
+    return false
+  }
 
-    return isEqual
-  })
+  return true
 }

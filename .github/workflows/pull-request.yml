@@ -17,14 +17,14 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - name: Install GraphicsMagick for tests
-        run: |
-          sudo apt-get update
-          sudo apt-get install graphicsmagick
+      # - name: Install GraphicsMagick for tests
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install graphicsmagick
       - name: Print versions
         run: |
           cat /etc/os-release
-          gm version
+          # gm version
       - name: Install dependencies
         run: npm install
       - name: Run tests

@@ -2,7 +2,7 @@ import { comparePdfToSnapshot, snapshotsDirName, CompareOptions } from './compar
 import { join } from 'path'
 import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
-import { compare } from './compare'
+import { compareImages } from './compare-images'
 
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
@@ -35,27 +35,6 @@ describe('comparePdfToSnapshot()', () => {
       expect(existsSync(snapshotDiffPath)).to.eq(true, 'diff is not created')
       const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page.new.png')
       expect(existsSync(snapshotNewPath)).to.eq(true, 'new is not created')
-    }))
-
-  it('custom options', () =>
-    comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page-overwrite-opts', {
-      highlightColor: 'Red',
-      highlightStyle: 'XOR',
-    }).then((x) => {
-      expect(x).to.be.false
-      const snapshotDiffPath = join(__dirname, snapshotsDirName, 'two-page-overwrite-opts.diff.png')
-      expect(existsSync(snapshotDiffPath)).to.eq(true, 'diff is not created')
-      const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page-overwrite-opts.new.png')
-      expect(existsSync(snapshotNewPath)).to.eq(true, 'new is not created')
-
-      const expectedImagePath = join(
-        __dirname,
-        './test-data',
-        'expected-two-page-overwrite-opts.diff.png',
-      )
-      return compare(expectedImagePath, snapshotDiffPath, { tolerance: 0 }).then((x) =>
-        expect(x).to.eq(true, 'generated diff image does not match expected one'),
-      )
     }))
 
   describe('maskRegions', () => {
@@ -99,7 +78,7 @@ describe('comparePdfToSnapshot()', () => {
       return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
         .then((x) => expect(x).to.be.true)
         .then(() =>
-          compare(expectedImagePath, snapshotPath, { tolerance: 0 }).then((x) =>
+          compareImages(expectedImagePath, snapshotPath, { tolerance: 0 }).then((x) =>
             expect(x).to.eq(true, 'generated initial rectangle masks does not match expected one'),
           ),
         )

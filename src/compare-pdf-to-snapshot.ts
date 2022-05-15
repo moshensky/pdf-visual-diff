@@ -49,10 +49,8 @@ export const snapshotsDirName = '__snapshots__'
  * @param pdf - path to pdf file or pdf loaded as Buffer
  * @param snapshotDir - path to a directory where __snapshots__ folder is going to be created
  * @param snapshotName - uniq name of a snapshot in the above path
- * @param compareOptions - settings for image comparation
- * @param compareOptions.highlightColor - color for differences in the diff image, defaults to Black
- * @param compareOptions.highlightStyle - highlight style as documented by the {@link http://www.graphicsmagick.org/GraphicsMagick.html#details-highlight-style gm package}, defaults to Tint
- * @param compareOptions.tolerance - number value for error tolerance, defaults to 0
+ * @param compareOptions - image comparison options
+ * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
  * @param compareOptions.writeDiff - flag to enable/disable diff file creation, defaults to true
  */
 export const comparePdfToSnapshot = (
