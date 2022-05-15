@@ -94,9 +94,9 @@ export const comparePdfToSnapshot = (
         }
 
         const newSnapshotPath = join(dir, snapshotName + '.new.png')
-        return writeImages(newSnapshotPath)(images).then(() =>
-          result.diffs[0].diff.writeAsync(diffSnapshotPath).then(() => false),
-        )
+        return writeImages(newSnapshotPath)(images)
+          .then(() => writeImages(diffSnapshotPath)(result.diffs.map((x) => x.diff)))
+          .then(() => false)
       }),
     )
 }
