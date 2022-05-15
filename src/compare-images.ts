@@ -39,10 +39,10 @@ export const compareImages = async (
     ...compareImagesOpts,
   }
   const [img1, img2] = await Promise.all([read(expectedImagePath), read(resultImagePath)])
-  const xxx = Jimp.diff(img1, img2, tolerance)
-  if (xxx.percent > 0) {
+  const diff = Jimp.diff(img1, img2, tolerance)
+  if (diff.percent > 0) {
     if (writeDiff) {
-      await xxx.image.writeAsync(mkDiffPath(resultImagePath))
+      await diff.image.writeAsync(mkDiffPath(resultImagePath))
     }
     return false
   }
