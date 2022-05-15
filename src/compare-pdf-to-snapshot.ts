@@ -2,7 +2,7 @@ import { join } from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
 import { pdf2png } from './pdf2png'
 import { compareImages, CompareImagesOpts, HighlightColor } from './compare-images'
-import { drawRectangle } from './drawing'
+import Jimp, { read } from 'jimp'
 
 export type RectangleMask = Readonly<{
   type: 'rectangle-mask'
@@ -15,16 +15,27 @@ export type RectangleMask = Readonly<{
 
 export type MaskRegions = ReadonlyArray<RectangleMask>
 
-const maskImgWithRegions = (imagePath: string, regions: MaskRegions): Promise<void> => {
-  return regions.reduce(
-    (acc, { type, x, y, width, height, color }) =>
-      acc.then(() =>
-        type === 'rectangle-mask'
-          ? drawRectangle(imagePath, x, y, x + width, y + height, color)
-          : undefined,
-      ),
-    Promise.resolve(),
+const colorToNum: Record<HighlightColor, number> = {
+  Red: 0xff0000ff,
+  Green: 0x00ff00ff,
+  Blue: 0x0000ffff,
+  White: 0x00000000,
+  Cyan: 0x00ffffff,
+  Magenta: 0xff00ffff,
+  Yellow: 0xffff00ff,
+  Black: 0x000000ff,
+  Gray: 0xbfbfbfff,
+}
+
+const maskImgWithRegions = async (imagePath: string, regions: MaskRegions): Promise<void> => {
+  const baseImage = await read(imagePath)
+  regions.forEach(({ type, x, y, width, height, color }) =>
+    type === 'rectangle-mask'
+      ? baseImage.composite(new Jimp(width, height, colorToNum[color]), x, y)
+      : undefined,
   )
+
+  await baseImage.writeAsync(imagePath)
 }
 
 export type CompareOptions = CompareImagesOpts & {
