@@ -130,11 +130,7 @@ export async function pdf2png(
 
   // Write images
   if (opts.combinePages === true) {
-    await new Promise<void>((res, rej) =>
-      mergeImages(images).then((img) => {
-        img.write(outputImagePath, (err) => (err ? rej(err) : res()))
-      }),
-    )
+    await mergeImages(images).then((img) => img.writeAsync(outputImagePath))
   } else {
     const partialName = path.join(parsedPath.dir, parsedPath.name)
     const padMaxLen = numPages.toString().length
