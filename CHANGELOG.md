@@ -8,7 +8,7 @@
 
 ### :tada: Enhancements
 
-- Graphicsmagick is not needed any more, but this change requires all snapshots to be regenerated. Please see tools section from README.md for quick approval of new snapshots
+- Graphicsmagick is not needed any more, but this is a **BREAKING CHANGE** that requires all snapshots to be regenerated. Please see tools section from README.md for quick approval of new snapshots
 - Added cli tools to approve and discard snapshots in bulk
   
 
