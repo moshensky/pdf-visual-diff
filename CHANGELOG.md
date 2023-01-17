@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0 / 2023-01-18
+
+- **BREAKING CHANGE** due to dependencies update. Minimum supported node 14. Some image diffs might occur as well.
+- [#48](https://github.com/moshensky/pdf-visual-diff/issues/48): Crash on Nodejs18
+
 ## 0.6.0 / 2022-05-16
 
 ### 🐛 Bug Fix
