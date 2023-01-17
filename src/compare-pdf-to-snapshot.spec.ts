@@ -4,6 +4,8 @@ import { join } from 'path'
 import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
 import { compareImages } from './compare-images'
+import fs0 from 'fs'
+const fs = fs0.promises
 
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
@@ -26,11 +28,6 @@ describe('comparePdfToSnapshot()', () => {
     })
   })
 
-  it('should pass', () =>
-    comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page-success').then(
-      (x) => expect(x).to.be.true,
-    ))
-
   it('should fail and create diff with new version', () =>
     comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page').then((x) => {
       expect(x).to.be.false
@@ -39,6 +36,33 @@ describe('comparePdfToSnapshot()', () => {
       const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page.new.png')
       expect(existsSync(snapshotNewPath)).to.eq(true, 'new is not created')
     }))
+
+  describe('should pass', () => {
+    it('should pass', () =>
+      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page-success').then(
+        (x) => expect(x).to.be.true,
+      ))
+
+    const testDataDir = join(__dirname, './test-data')
+    const pdfs = join(testDataDir, 'pdfs')
+    const singlePageSmall = join(pdfs, 'single-page-small.pdf')
+    const singlePage = join(pdfs, 'single-page.pdf')
+    const tamReview = join(pdfs, 'TAMReview.pdf')
+    const twoPage = join(pdfs, 'two-page.pdf')
+    const expectedDir = join(testDataDir, 'pdf2png-expected')
+
+    const testPdf2png = (pdf: string | Buffer, expectedImageName: string): Promise<void> => {
+      return comparePdfToSnapshot(pdf, expectedDir, expectedImageName).then((x) => {
+        expect(x).to.be.true
+      })
+    }
+
+    it('single-page-small.pdf', () => testPdf2png(singlePageSmall, 'single-page-small'))
+    it('single-page.pdf', () => testPdf2png(singlePage, 'single-page'))
+    it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview')).timeout(40000)
+    it('two-page.pdf', () => testPdf2png(twoPage, 'two-page'))
+    it('two-page.pdf buffer', () => fs.readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
+  })
 
   describe('maskRegions', () => {
     const opts: Partial<CompareOptions> = {
