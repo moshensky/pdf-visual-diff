@@ -6,6 +6,7 @@ import { expect } from 'chai'
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
 const twoPage = join(pdfs, 'two-page.pdf')
+const cmaps = join(pdfs, 'cmaps.pdf')
 
 const expectedDir = join(testDataDir, 'pdf2png-expected')
 
@@ -23,5 +24,12 @@ describe('pdf2png()', () => {
       .then((results) => {
         results.forEach((x) => expect(x.equal).to.be.true)
       })
+  })
+
+  it('pdf that requires cmaps', () => {
+    const expectedImagePath = join(expectedDir, 'cmaps.png')
+    return pdf2png(cmaps)
+      .then((imgs) => compareImages(expectedImagePath, imgs))
+      .then((result) => expect(result.equal).to.be.true)
   })
 })

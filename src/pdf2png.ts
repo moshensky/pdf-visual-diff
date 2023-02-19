@@ -57,12 +57,15 @@ class NodeCanvasFactory {
   }
 }
 
+// pdfjs location
+const PDFJS_DIR = path.dirname(require.resolve('pdfjs-dist'))
+
 // Some PDFs need external cmaps.
-const CMAP_URL = path.join(__dirname, '../node_modules/pdfjs-dist/cmaps/')
+const CMAP_URL = path.join(PDFJS_DIR, '../cmaps/')
 const CMAP_PACKED = true
 
 // Where the standard fonts are located.
-const STANDARD_FONT_DATA_URL = path.join(__dirname, '../node_modules/pdfjs-dist/standard_fonts/')
+const STANDARD_FONT_DATA_URL = path.join(PDFJS_DIR, '../standard_fonts/')
 
 export type Pdf2PngOpts = Readonly<{
   // Slower, but better resolution
