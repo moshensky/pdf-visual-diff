@@ -1,4 +1,4 @@
-import glob from 'glob'
+import { glob } from 'glob'
 import { join } from 'path'
 import { createInterface } from 'readline'
 
@@ -34,5 +34,5 @@ export const findImages = (
   filenamePatter = '*.new.png',
 ): Promise<ReadonlyArray<string>> => {
   const pattern = join(process.cwd(), startingPath, '**', snapshotsDirName, filenamePatter)
-  return new Promise((res, rej) => glob(pattern, {}, (err, files) => (err ? rej(err) : res(files))))
+  return glob(pattern, {})
 }
