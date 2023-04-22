@@ -15,7 +15,7 @@ export type RectangleMask = Readonly<{
 
 export type RegionMask = RectangleMask
 
-export type MaskRegions = (page: number) => ReadonlyArray<RegionMask>
+export type MaskRegions = (page: number) => ReadonlyArray<RegionMask> | undefined
 
 const colorToNum: Record<HighlightColor, number> = {
   Red: 0xff0000ff,
@@ -33,7 +33,7 @@ const maskImgWithRegions =
   (maskRegions: MaskRegions) =>
   (images: ReadonlyArray<Jimp>): ReadonlyArray<Jimp> => {
     images.forEach((img, idx) => {
-      maskRegions(idx + 1).forEach(({ type, x, y, width, height, color }) => {
+      ;(maskRegions(idx + 1) || []).forEach(({ type, x, y, width, height, color }) => {
         if (type === 'rectangle-mask') {
           img.composite(new Jimp(width, height, colorToNum[color]), x, y)
         }
@@ -56,7 +56,7 @@ export const snapshotsDirName = '__snapshots__'
  * @param snapshotName - uniq name of a snapshot in the above path
  * @param compareOptions - image comparison options
  * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
- * @param compareOptions.maskRegions - mask predefined regions, i.e. when there are parts of the pdf that change between tests
+ * @param compareOptions.maskRegions - `(page: number) => ReadonlyArray<RegionMask> | undefined` mask predefined regions per page, i.e. when there are parts of the pdf that change between tests
  */
 export const comparePdfToSnapshot = (
   pdf: string | Buffer,

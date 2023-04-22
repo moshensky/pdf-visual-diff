@@ -119,6 +119,11 @@ describe('comparePdfToSnapshot()', () => {
         maskRegions: (page) => (page === 2 ? [blueMask, greenMask] : []),
       }).then((x) => expect(x).to.be.true))
 
+    it('should mask only second page of the pdf and handle undefined masks', () =>
+      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-only-second-page-of-the-pdf-with-undefined', {
+        maskRegions: (page) => (page === 2 ? [blueMask, greenMask] : undefined),
+      }).then((x) => expect(x).to.be.true))
+
     it('should create initial masked image', () => {
       const snapshotName = 'initial-rectangle-masks'
       const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
