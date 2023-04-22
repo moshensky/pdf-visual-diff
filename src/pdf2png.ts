@@ -135,11 +135,11 @@ export async function pdf2png(
 
 export const writeImages =
   (outputImagePath: string, combinePages = true) =>
-  (images: ReadonlyArray<Jimp>): Promise<void> => {
+  (images: ReadonlyArray<Jimp>): Promise<ReadonlyArray<Jimp>> => {
     if (combinePages === true) {
       return mergeImages(images)
         .writeAsync(outputImagePath)
-        .then(() => undefined)
+        .then(() => images)
     }
 
     const parsedPath = path.parse(outputImagePath)
@@ -149,5 +149,5 @@ export const writeImages =
       images.map((img, idx) =>
         img.writeAsync(`${partialName}_${String(idx + 1).padStart(padMaxLen, '0')}.png`),
       ),
-    ).then(() => undefined)
+    ).then(() => images)
   }

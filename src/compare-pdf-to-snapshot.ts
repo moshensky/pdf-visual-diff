@@ -13,7 +13,9 @@ export type RectangleMask = Readonly<{
   color: HighlightColor
 }>
 
-export type MaskRegions = ReadonlyArray<RectangleMask>
+export type RegionMask = RectangleMask
+
+export type MaskRegions = (page: number) => ReadonlyArray<RegionMask> | undefined
 
 const colorToNum: Record<HighlightColor, number> = {
   Red: 0xff0000ff,
@@ -28,19 +30,15 @@ const colorToNum: Record<HighlightColor, number> = {
 }
 
 const maskImgWithRegions =
-  (regions: MaskRegions) =>
+  (maskRegions: MaskRegions) =>
   (images: ReadonlyArray<Jimp>): ReadonlyArray<Jimp> => {
-    // For the moment public api exposes pdf to one image generation
-    if (images.length === 1) {
-      const baseImage = images[0]
-      regions.forEach(({ type, x, y, width, height, color }) =>
-        type === 'rectangle-mask'
-          ? baseImage.composite(new Jimp(width, height, colorToNum[color]), x, y)
-          : undefined,
-      )
-
-      return [baseImage]
-    }
+    images.forEach((img, idx) => {
+      ;(maskRegions(idx + 1) || []).forEach(({ type, x, y, width, height, color }) => {
+        if (type === 'rectangle-mask') {
+          img.composite(new Jimp(width, height, colorToNum[color]), x, y)
+        }
+      })
+    })
 
     return images
   }
@@ -58,13 +56,13 @@ export const snapshotsDirName = '__snapshots__'
  * @param snapshotName - uniq name of a snapshot in the above path
  * @param compareOptions - image comparison options
  * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
- * @param compareOptions.maskRegions - mask predefined regions, i.e. when there are parts of the pdf that change between tests
+ * @param compareOptions.maskRegions - `(page: number) => ReadonlyArray<RegionMask> | undefined` mask predefined regions per page, i.e. when there are parts of the pdf that change between tests
  */
 export const comparePdfToSnapshot = (
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
-  { maskRegions, ...restOpts }: Partial<CompareOptions> = {},
+  { maskRegions = () => [], ...restOpts }: Partial<CompareOptions> = {},
 ): Promise<boolean> => {
   const dir = join(snapshotDir, snapshotsDirName)
   if (!existsSync(dir)) {
@@ -75,13 +73,13 @@ export const comparePdfToSnapshot = (
 
   if (!existsSync(snapshotPath)) {
     return pdf2png(pdf)
-      .then(maskImgWithRegions(maskRegions || []))
+      .then(maskImgWithRegions(maskRegions))
       .then(writeImages(snapshotPath))
       .then(() => true)
   }
 
   return pdf2png(pdf)
-    .then(maskImgWithRegions(maskRegions || []))
+    .then(maskImgWithRegions(maskRegions))
     .then((images) =>
       compareImages(snapshotPath, images, restOpts).then((result) => {
         const diffSnapshotPath = join(dir, snapshotName + '.diff.png')

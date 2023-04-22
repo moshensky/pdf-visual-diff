@@ -29,7 +29,7 @@ This package exports single function `comparePdfToSnapshot`. With the following 
  * @param snapshotName - uniq name of a snapshot in the above path
  * @param compareOptions - image comparison options
  * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
- * @param compareOptions.maskRegions - mask predefined regions, i.e. when there are parts of the pdf that change between tests
+ * @param compareOptions.maskRegions - `(page: number) => ReadonlyArray<RegionMask> | undefined` mask predefined regions per page, i.e. when there are parts of the pdf that change between tests
  */
 type ComparePdfToSnapshot = (
   pdf: string | Buffer,
@@ -63,6 +63,42 @@ describe('test pdf report visual regression', () => {
       (x) => expect(x).to.be.true,
     ))
 })
+
+// Example with masking regions of a two page pdf
+describe('pdf masking', () => {
+  it('should mask two page pdf', () => {
+    const blueMask: RegionMask = {
+      type: 'rectangle-mask',
+      x: 50,
+      y: 75,
+      width: 140,
+      height: 100,
+      color: 'Blue',
+    }
+    const greenMask: RegionMask = {
+      type: 'rectangle-mask',
+      x: 110,
+      y: 200,
+      width: 90,
+      height: 50,
+      color: 'Green',
+    }
+
+    comparePdfToSnapshot(twoPagePdfPath, __dirname, 'different-mask-per-page', {
+      maskRegions: (page) => {
+        switch (page) {
+          case 1:
+            return [blueMask]
+          case 2:
+            return [greenMask]
+          default:
+            return []
+        }
+      },
+    }).then((x) => expect(x).to.be.true))
+  })
+})
+
 ```
 
 ## Tools
