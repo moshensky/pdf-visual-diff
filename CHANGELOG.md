@@ -1,9 +1,40 @@
 # Changelog
 
-## 0.9.0 / 2023-04-21
+## 0.8.0 / 2023-04-22
 
-- **BREAKING CHANGE** Minimum supported node 16.
-- [PR#52](https://github.com/moshensky/pdf-visual-diff/pull/52): Dependencies updates
+- [PR#52](https://github.com/moshensky/pdf-visual-diff/pull/52): Dependencies update. **BREAKING CHANGE** minimum supported **node v16**.
+
+### :tada: Enhancements
+
+- [#51](https://github.com/moshensky/pdf-visual-diff/issues/51): Enable mask regions for multi page pdfs. It is possible to have different mask regions per each page. This is an api **BREAKING CHANGE**.
+
+If you haven't used `maskRegions` then you don't have to change anything. 
+`maskRegions` is changed from `ReadonlyArray<RegionMask>` to `(page: number) => ReadonlyArray<RegionMask>`. Straight forward code update could be:
+
+```ts
+// Change options from:
+const opts = {
+  maskRegions: [
+    // Your mask definitions...
+  ]
+}
+
+// To
+const opts = {
+  // Here one can use `page` parameter to provide different mask regions for every page
+  maskRegions: (page) => [
+    // Your mask definitions...
+  ]
+}
+
+const opts = {
+  maskRegions: () => [blueMask, greenMask]
+}
+
+comparePdfToSnapshot( singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts)
+```
+
+
 
 ## 0.7.1 / 2023-02-23
 
