@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0 / 2023-04-21
+
+- **BREAKING CHANGE** Minimum supported node 16.
+- [PR#52](https://github.com/moshensky/pdf-visual-diff/pull/52): Dependencies updates
+
 ## 0.7.1 / 2023-02-23
 
 ### 🐛 Bug Fix

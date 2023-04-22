@@ -121,6 +121,9 @@ export async function pdf2png(
     const page = await pdfDocument.getPage(idx)
     const viewport = getPageViewPort(page, opts.scaleImage)
     canvasFactory.reset(canvasAndContext, viewport.width, viewport.height)
+    // TODO: fix types
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await page.render({ canvasContext: canvasAndContext.context, viewport }).promise
     page.cleanup()
     const image = canvasAndContext.canvas.toBuffer('image/png')
