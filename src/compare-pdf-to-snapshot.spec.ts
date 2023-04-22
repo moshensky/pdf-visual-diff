@@ -1,5 +1,10 @@
 import { read } from 'jimp'
-import { comparePdfToSnapshot, snapshotsDirName, CompareOptions } from './compare-pdf-to-snapshot'
+import {
+  comparePdfToSnapshot,
+  snapshotsDirName,
+  CompareOptions,
+  RegionMask,
+} from './compare-pdf-to-snapshot'
 import { join } from 'path'
 import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
@@ -65,31 +70,54 @@ describe('comparePdfToSnapshot()', () => {
   })
 
   describe('maskRegions', () => {
+    const blueMask: RegionMask = {
+      type: 'rectangle-mask',
+      x: 50,
+      y: 75,
+      width: 140,
+      height: 100,
+      color: 'Blue',
+    }
+    const greenMask: RegionMask = {
+      type: 'rectangle-mask',
+      x: 110,
+      y: 200,
+      width: 90,
+      height: 50,
+      color: 'Green',
+    }
     const opts: Partial<CompareOptions> = {
-      maskRegions: [
-        {
-          type: 'rectangle-mask',
-          x: 50,
-          y: 75,
-          width: 140,
-          height: 100,
-          color: 'Blue',
-        },
-        {
-          type: 'rectangle-mask',
-          x: 110,
-          y: 200,
-          width: 90,
-          height: 50,
-          color: 'Green',
-        },
-      ],
+      maskRegions: () => [blueMask, greenMask],
     }
 
-    it('should succeed comparing masked image', () =>
-      comparePdfToSnapshot(singlePagePdfPath, __dirname, 'rectangle-masks', opts).then(
+    it('should succeed comparing masked pdf', () =>
+      comparePdfToSnapshot(singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts).then(
         (x) => expect(x).to.be.true,
       ))
+
+    it('should mask multi page pdf', () =>
+      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-multi-page-pdf', opts).then(
+        (x) => expect(x).to.be.true,
+      ))
+
+    it('should have different mask per page', () =>
+      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-different-mask-per-page', {
+        maskRegions: (page) => {
+          switch (page) {
+            case 1:
+              return [blueMask]
+            case 2:
+              return [greenMask]
+            default:
+              return []
+          }
+        },
+      }).then((x) => expect(x).to.be.true))
+
+    it('should mask only second page of the pdf', () =>
+      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-only-second-page-of-the-pdf', {
+        maskRegions: (page) => (page === 2 ? [blueMask, greenMask] : []),
+      }).then((x) => expect(x).to.be.true))
 
     it('should create initial masked image', () => {
       const snapshotName = 'initial-rectangle-masks'
