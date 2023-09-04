@@ -1,1 +1,1 @@
-export { comparePdfToSnapshot } from './compare-pdf-to-snapshot'
+export { comparePdfToSnapshot, MaskRegions } from './compare-pdf-to-snapshot'
