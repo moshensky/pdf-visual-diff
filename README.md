@@ -161,3 +161,29 @@ describe('test pdf report visual regression', () => {
 ```
 
 As you can see no need to fiddle with any dirs nor names. Needed information is extracted from jest context.
+
+## Usage with Playwright
+
+This packages provides custom Playwright matcher `toMatchPdfSnapshot`
+
+### Setup
+
+Add the following line to your `playwright.config.ts`
+```ts
+import 'pdf-visual-diff/lib/playwright'
+```
+
+If you are using **Typescript** add `node_modules/pdf-visual-diff/lib/playwright` to your `tsconfig.json` types.
+
+### Usage
+
+All you have to do in your tests is pass a path to the pdf or pdf content as Buffer.
+
+```ts
+const pathToPdf = 'path to your pdf' // or you might pass in Buffer instead
+describe('test pdf report visual regression', () => {
+  it('should match', () => expect(pathToPdf).toMatchPdfSnapshot({
+    name: 'my-pdf.pdf' // file extension will always be replaced with .png
+  }))
+})
+```

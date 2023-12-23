@@ -39,6 +39,7 @@
   },
   "homepage": "https://github.com/moshensky/pdf-visual-diff#readme",
   "dependencies": {
+    "@playwright/test": "^1.40.1",
     "canvas": "^2.11.2",
     "glob": "^10.2.1",
     "jimp": "^0.22.7",
