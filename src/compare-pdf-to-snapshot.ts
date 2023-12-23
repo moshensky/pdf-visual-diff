@@ -29,7 +29,7 @@ const colorToNum: Record<HighlightColor, number> = {
   Gray: 0xbfbfbfff,
 }
 
-const maskImgWithRegions =
+export const maskImgWithRegions =
   (maskRegions: MaskRegions) =>
   (images: ReadonlyArray<Jimp>): ReadonlyArray<Jimp> => {
     images.forEach((img, idx) => {
