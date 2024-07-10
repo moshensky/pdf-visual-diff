@@ -45,6 +45,7 @@ const maskImgWithRegions =
 
 export type CompareOptions = CompareImagesOpts & {
   maskRegions: MaskRegions
+  mode: 'create' | 'failFast'
 }
 
 export const snapshotsDirName = '__snapshots__'
@@ -62,7 +63,7 @@ export const comparePdfToSnapshot = (
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
-  { maskRegions = () => [], ...restOpts }: Partial<CompareOptions> = {},
+  { maskRegions = () => [], mode = 'failFast', ...restOpts }: Partial<CompareOptions> = {},
 ): Promise<boolean> => {
   const dir = join(snapshotDir, snapshotsDirName)
   if (!existsSync(dir)) {
@@ -72,6 +73,11 @@ export const comparePdfToSnapshot = (
   const snapshotPath = join(dir, snapshotName + '.png')
 
   if (!existsSync(snapshotPath)) {
+    if (mode === 'failFast') {
+      throw new Error(
+        `${snapshotPath} does not exist. Run comparePdfToSnapshot in create mode to create it.`,
+      )
+    }
     return pdf2png(pdf)
       .then(maskImgWithRegions(maskRegions))
       .then(writeImages(snapshotPath))
