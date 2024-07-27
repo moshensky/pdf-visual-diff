@@ -1,8 +1,10 @@
-import { join } from 'path'
+import { dirname, join } from 'path'
 import { pdf2png } from './pdf2png'
 import { compareImages } from './compare-images'
 import { expect } from 'chai'
+import { fileURLToPath } from 'url'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
 const twoPage = join(pdfs, 'two-page.pdf')

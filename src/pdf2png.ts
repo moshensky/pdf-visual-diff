@@ -2,9 +2,11 @@ import * as Canvas from 'canvas'
 import * as assert from 'assert'
 import * as fs from 'fs'
 import * as path from 'path'
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
-import Jimp, { read } from 'jimp'
+import { getDocument, PageViewport, PDFPageProxy } from 'pdfjs-dist/legacy/build/pdf.mjs'
+import Jimp from 'jimp'
 import { mergeImages } from './merge-images'
+import { fileURLToPath } from 'url'
+import { join } from 'path'
 
 function convertFromMmToPx(sizeMm: number, dpi: number): number {
   if (sizeMm <= 0 || dpi <= 0) {
@@ -58,14 +60,16 @@ class NodeCanvasFactory {
 }
 
 // pdfjs location
-const PDFJS_DIR = path.dirname(require.resolve('pdfjs-dist'))
+const rootDir = fileURLToPath(new URL('..', import.meta.url))
+const PDFJS_DIR = join(rootDir, 'node_modules', 'pdfjs-dist')
+// const PDFJS_DIR = path.dirname(require.resolve('pdfjs-dist'))
 
 // Some PDFs need external cmaps.
-const CMAP_URL = path.join(PDFJS_DIR, '../cmaps/')
+const CMAP_URL = path.join(PDFJS_DIR, 'cmaps/')
 const CMAP_PACKED = true
 
 // Where the standard fonts are located.
-const STANDARD_FONT_DATA_URL = path.join(PDFJS_DIR, '../standard_fonts/')
+const STANDARD_FONT_DATA_URL = path.join(PDFJS_DIR, 'standard_fonts/')
 
 export type Pdf2PngOpts = Readonly<{
   // Slower, but better resolution
@@ -76,7 +80,7 @@ const pdf2PngDefOpts: Pdf2PngOpts = {
   scaleImage: true,
 }
 
-function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfjsLib.PageViewport {
+function getPageViewPort(page: PDFPageProxy, scaleImage: boolean): PageViewport {
   const viewport = page.getViewport({ scale: 1.0 })
   if (scaleImage === false) {
     return viewport
@@ -102,7 +106,7 @@ export async function pdf2png(
 
   // Load PDF
   const data = new Uint8Array(Buffer.isBuffer(pdf) ? pdf : fs.readFileSync(pdf))
-  const loadingTask = pdfjsLib.getDocument({
+  const loadingTask = getDocument({
     data,
     cMapUrl: CMAP_URL,
     cMapPacked: CMAP_PACKED,
@@ -130,7 +134,7 @@ export async function pdf2png(
     images.push(image)
   }
 
-  return Promise.all(images.map((x) => read(x)))
+  return Promise.all(images.map((x) => Jimp.read(x)))
 }
 
 export const writeImages =

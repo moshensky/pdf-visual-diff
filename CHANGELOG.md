@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0 / 2024-08-27
+
+- [PR#XX](https://github.com/moshensky/pdf-visual-diff/pull/XX): Dependencies update. **BREAKING CHANGE** minimum supported **node v18**.
+
 ## 0.9.0 / 2023-09-04
 
 - [PR#54](https://github.com/moshensky/pdf-visual-diff/pull/54): Export MaskRegions type.

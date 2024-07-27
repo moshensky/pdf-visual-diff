@@ -1,9 +1,10 @@
 {
   "name": "pdf-visual-diff",
   "version": "0.9.0",
+  "type": "module",
   "description": "Visual Regression Testing for PDFs in JavaScript",
   "bin": "./lib/cli/index.js",
-  "main": "./lib/index.js",
+  "main": "./lib/index.mjs",
   "types": "./lib/index.d.ts",
   "scripts": {
     "clean": "rm -rf ./lib ./coverage",
@@ -12,7 +13,7 @@
     "tsc:watch": "npm run tsc -- --watch",
     "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
-    "format": "prettier --write .eslintrc.js .prettierrc.json tsconfig.json .mocharc.json",
+    "format": "prettier --write .eslintrc.json .prettierrc.json tsconfig.json .mocharc.json",
     "test": "mocha",
     "test:watch": "npm test -- --watch",
     "license-checker": "npx license-checker --production --onlyAllow 'MIT; MIT OR X11; BSD; ISC; Apache-2.0; Unlicense' --excludePackages 'pdf-visual-diff'",
@@ -42,7 +43,7 @@
     "canvas": "^2.11.2",
     "glob": "^10.2.1",
     "jimp": "^0.22.7",
-    "pdfjs-dist": "^3.5.141",
+    "pdfjs-dist": "^4.4.168",
     "yargs": "^17.7.1"
   },
   "devDependencies": {

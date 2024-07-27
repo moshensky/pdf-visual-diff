@@ -1,17 +1,19 @@
-import { read } from 'jimp'
+import Jimp from 'jimp'
 import {
   comparePdfToSnapshot,
   snapshotsDirName,
   CompareOptions,
   RegionMask,
 } from './compare-pdf-to-snapshot'
-import { join } from 'path'
+import { dirname, join } from 'path'
 import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
 import { compareImages } from './compare-images'
 import fs0 from 'fs'
+import { fileURLToPath } from 'url'
 const fs = fs0.promises
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
 
@@ -142,7 +144,7 @@ describe('comparePdfToSnapshot()', () => {
       }
       return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
         .then((x) => expect(x).to.be.true)
-        .then(() => read(snapshotPath))
+        .then(() => Jimp.read(snapshotPath))
         .then((img) =>
           compareImages(expectedImagePath, [img], { tolerance: 0 }).then((x) =>
             expect(x.equal).to.eq(
