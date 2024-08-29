@@ -1,7 +1,8 @@
-import * as Canvas from 'canvas'
+import * as PImage from 'pureimage'
 import * as assert from 'assert'
 import * as fs from 'fs'
 import * as path from 'path'
+import { PassThrough } from 'stream'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
 import Jimp, { read } from 'jimp'
 import { mergeImages } from './merge-images'
@@ -21,30 +22,117 @@ function convertFromPxToMm(sizePx: number, dpi: number): number {
   return Math.round(sizeInch * 25.4)
 }
 
-type CanvasAndContext = {
-  canvas: Canvas.Canvas
-  context: Canvas.CanvasRenderingContext2D
+type canvasAndContext = {
+  canvas: PImage.Bitmap
+  context: PImage.Context & { canvas: PImage.Bitmap } & Pick<
+      CanvasRenderingContext2D,
+      'getLineDash' | 'setLineDash'
+    >
 }
 
-class NodeCanvasFactory {
-  create(width: number, height: number): CanvasAndContext {
+class PImageBitmapFactory {
+  create(width: number, height: number): canvasAndContext {
     assert.ok(width > 0 && height > 0, 'Invalid canvas size')
-    const canvas = Canvas.createCanvas(width, height)
-    const context = canvas.getContext('2d')
+
+    const canvas = new Proxy(PImage.make(width, height), {
+      get(target, prop, receiver) {
+        if (prop === 'getContext') {
+          const handle = target[prop]
+
+          return function (this: PImage.Bitmap, ...args: Parameters<PImage.Bitmap['getContext']>) {
+            const _context = handle.apply(this === receiver ? target : this, args)
+
+            let _lineDash: ReturnType<canvasAndContext['context']['getLineDash']>
+
+            //TODO: include createImageData https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createImageData
+            Object.defineProperties(_context, {
+              /**
+               * provide bitmap instance as canvas to fufill pdf.js expectation for canvas factory
+               */
+              canvas: { value: target },
+              /**
+               * provide implementation for {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getLineDash | getLineDash} to fufill pdf.js expectation
+               */
+              getLineDash: {
+                value: () => {
+                  return _lineDash
+                },
+                enumerable: true,
+                configurable: true,
+              },
+              /**
+               *  provide implementation for {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash | setLineDash} to fufill pdf.js expectation
+               */
+              setLineDash: {
+                value: (
+                  ...args: Parameters<canvasAndContext['context']['setLineDash']>
+                ): ReturnType<canvasAndContext['context']['setLineDash']> => {
+                  _lineDash =
+                    args[0].length % 2 === 1 ? ([] as number[]).concat(args[0], args[0]) : args[0]
+                },
+                enumerable: true,
+                configurable: true,
+              },
+            })
+
+            return new Proxy(_context, {
+              get(_target, _prop: keyof canvasAndContext['context'], _receiver) {
+                const value = Reflect.get(_target, _prop, _receiver)
+
+                if (value instanceof Function) {
+                  // augment pure image methods
+                  switch (_prop) {
+                    case 'moveTo': {
+                      return (...args: Parameters<PImage.Context['moveTo']>) => {
+                        if (!_target?.path) _target.beginPath.apply(_target)
+                        return (value as PImage.Context['moveTo']).apply(_target, args)
+                      }
+                    }
+                    default: {
+                      return value.bind(_target)
+                    }
+                  }
+                }
+
+                return value
+              },
+            })
+          }
+        } else {
+          return target[prop as keyof PImage.Bitmap]
+        }
+      },
+    })
+
     return {
       canvas,
-      context,
+      context: canvas.getContext('2d') as canvasAndContext['context'],
     }
   }
 
-  reset(canvasAndContext: CanvasAndContext, width: number, height: number): void {
+  reset(canvasAndContext: canvasAndContext, width: number, height: number): void {
     assert.ok(canvasAndContext.canvas, 'Canvas is not specified')
     assert.ok(width > 0 && height > 0, 'Invalid canvas size')
-    canvasAndContext.canvas.width = width
-    canvasAndContext.canvas.height = height
+
+    canvasAndContext = {
+      ...this.create(width, height),
+    }
+
+    return
+
+    // const pipe = new PassThrough()
+    // await PImage.encodePNGToStream(canvasAndContext.canvas, pipe)
+
+    // const PImage.decodePNGFromStream(pipe)
+
+    // if (canvasAndContext) {
+    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //   // @ts-ignore
+    //   canvasAndContext.context = canvasAndContext.canvas.getContext('2d')
+    // }
   }
 
-  destroy(canvasAndContext: CanvasAndContext): void {
+  destroy(canvasAndContext: canvasAndContext): void {
     assert.ok(canvasAndContext.canvas, 'Canvas is not specified')
     canvasAndContext.canvas.width = 0
     canvasAndContext.canvas.height = 0
@@ -107,27 +195,57 @@ export async function pdf2png(
     cMapUrl: CMAP_URL,
     cMapPacked: CMAP_PACKED,
     standardFontDataUrl: STANDARD_FONT_DATA_URL,
+    canvasFactory: new PImageBitmapFactory(),
   })
 
   const pdfDocument = await loadingTask.promise
   const numPages = pdfDocument.numPages
 
-  const canvasFactory = new NodeCanvasFactory()
-  const canvasAndContext = canvasFactory.create(1, 1)
+  const bitmapFactory = new PImageBitmapFactory()
 
   // Generate images
   const images: Buffer[] = []
-  for (let idx = 1; idx <= numPages; idx += 1) {
+
+  for (let idx = 1; idx <= numPages; idx++) {
     const page = await pdfDocument.getPage(idx)
     const viewport = getPageViewPort(page, opts.scaleImage)
-    canvasFactory.reset(canvasAndContext, viewport.width, viewport.height)
+
+    const bitmapAndContext = bitmapFactory.create(viewport.width, viewport.height)
+
+    debugger
     // TODO: fix types
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    await page.render({ canvasContext: canvasAndContext.context, viewport }).promise
+    await page.render({ canvasContext: bitmapAndContext.context, viewport }).promise
     page.cleanup()
-    const image = canvasAndContext.canvas.toBuffer('image/png')
-    images.push(image)
+
+    console.log('I got here!!:: \n')
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const image = []
+    const passThroughStream = new PassThrough()
+    passThroughStream.on('data', (chunk) => image.push(chunk))
+    passThroughStream.on('end', () => {
+      bitmapFactory.destroy(bitmapAndContext)
+      // canvasAndContext.
+    })
+
+    PImage.encodePNGToStream(bitmapAndContext.canvas, passThroughStream)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    images.push(passThroughStream)
+
+    // images.push(
+    //   new Promise((resolve, reject) => {
+    //     const passThroughStream = new PassThrough()
+    //     passThroughStream.on('data', (chunk) => image.push(chunk))
+    //     passThroughStream.on('end', resolve)
+    //     PassThroughStream.on('error', reject)
+    //     PImage.encodePNGToStream(canvasAndContext.canvas, passThroughStream)
+    //     return passThroughStream
+    //   }),
+    // )
   }
 
   return Promise.all(images.map((x) => read(x)))
