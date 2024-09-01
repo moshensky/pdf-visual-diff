@@ -4,6 +4,13 @@ import { pdf2png, writeImages } from './pdf2png'
 import { compareImages, CompareImagesOpts, HighlightColor } from './compare-images'
 import Jimp from 'jimp'
 
+/**
+ * Rectangle mask is applied at the PNG level, i.e., after the conversion of the
+ * PDF to an image. Therefore, the values provided for `x`, `y`, `width`, and
+ * `height` are expected to be in pixels and based on the generated image by the
+ * library. The origin (0,0) of the PNG's coordinate system is the top-left
+ * corner of the image.
+ */
 export type RectangleMask = Readonly<{
   type: 'rectangle-mask'
   x: number
@@ -15,6 +22,10 @@ export type RectangleMask = Readonly<{
 
 export type RegionMask = RectangleMask
 
+/**
+ * Masks predefined regions per page, e.g., when certain parts of the PDF
+ * change between tests.
+ */
 export type MaskRegions = (page: number) => ReadonlyArray<RegionMask> | undefined
 
 const colorToNum: Record<HighlightColor, number> = {
@@ -55,8 +66,6 @@ export const snapshotsDirName = '__snapshots__'
  * @param snapshotDir - path to a directory where __snapshots__ folder is going to be created
  * @param snapshotName - uniq name of a snapshot in the above path
  * @param compareOptions - image comparison options
- * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
- * @param compareOptions.maskRegions - `(page: number) => ReadonlyArray<RegionMask> | undefined` mask predefined regions per page, i.e. when there are parts of the pdf that change between tests
  */
 export const comparePdfToSnapshot = (
   pdf: string | Buffer,

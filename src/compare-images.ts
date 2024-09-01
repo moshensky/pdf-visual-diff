@@ -21,10 +21,16 @@ export type HighlightColor =
   | 'Gray'
 
 export type CompareImagesOpts = {
-  tolerance: number
+  /**
+   * A number value for error tolerance.
+   * This value should be a number between 0 and 1 (inclusive).
+   *
+   * @defaultValue 0
+   */
+  tolerance?: number
 }
 
-const defaultOpts: CompareImagesOpts = {
+const defaultOpts: Required<CompareImagesOpts> = {
   tolerance: 0,
 }
 
@@ -45,7 +51,7 @@ type CompareImagesResult = CompareOK | CompareKO
 export const compareImages = async (
   expectedImagePath: string,
   images: ReadonlyArray<Jimp>,
-  compareImagesOpts: Partial<CompareImagesOpts> = {},
+  compareImagesOpts: CompareImagesOpts = {},
 ): Promise<CompareImagesResult> => {
   const { tolerance } = {
     ...defaultOpts,
