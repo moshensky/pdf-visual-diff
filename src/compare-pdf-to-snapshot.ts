@@ -23,8 +23,11 @@ export type RectangleMask = Readonly<{
 export type RegionMask = RectangleMask
 
 /**
- * Masks predefined regions per page, e.g., when certain parts of the PDF
- * change between tests.
+ * Defines a function type for masking predefined regions on a PDF page, e.g.,
+ * when certain parts of the PDF change between tests.
+ *
+ * @param page - The page number of the PDF.
+ * @returns An array of region masks for the specified page, or undefined if no masks are defined.
  */
 export type MaskRegions = (page: number) => ReadonlyArray<RegionMask> | undefined
 
@@ -54,16 +57,17 @@ const maskImgWithRegions =
     return images
   }
 
-export type CompareOptions = CompareImagesOpts & {
-  maskRegions: MaskRegions
-}
+export type CompareOptions = CompareImagesOpts &
+  Partial<{
+    maskRegions: MaskRegions
+  }>
 
 export const snapshotsDirName = '__snapshots__'
 
 /**
  * Compare pdf to persisted snapshot. If one does not exist it is created
  * @param pdf - path to pdf file or pdf loaded as Buffer
- * @param snapshotDir - path to a directory where __snapshots__ folder is going to be created
+ * @param snapshotDir - path to a directory where to create `__snapshots__` folder
  * @param snapshotName - uniq name of a snapshot in the above path
  * @param compareOptions - image comparison options
  */
@@ -71,7 +75,7 @@ export const comparePdfToSnapshot = (
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
-  { maskRegions = () => [], ...restOpts }: Partial<CompareOptions> = {},
+  { maskRegions = () => [], ...restOpts }: CompareOptions = {},
 ): Promise<boolean> => {
   const dir = join(snapshotDir, snapshotsDirName)
   if (!existsSync(dir)) {

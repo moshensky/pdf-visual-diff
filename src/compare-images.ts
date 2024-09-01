@@ -20,15 +20,15 @@ export type HighlightColor =
   | 'Black'
   | 'Gray'
 
-export type CompareImagesOpts = {
+export type CompareImagesOpts = Partial<{
   /**
    * A number value for error tolerance.
    * This value should be a number between 0 and 1 (inclusive).
    *
    * @defaultValue 0
    */
-  tolerance?: number
-}
+  tolerance: number
+}>
 
 const defaultOpts: Required<CompareImagesOpts> = {
   tolerance: 0,
