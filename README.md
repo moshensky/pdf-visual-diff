@@ -1,14 +1,14 @@
-# Test visual regression in PDFs
+# Test Visual Regression in PDFs
 
 [![NPM version][npm-badge-url]][npm-url]
 [![code style: prettier][prettier-badge-url]][prettier-url]
 ![Pull Request CI/CD](https://github.com/moshensky/pdf-visual-diff/workflows/Pull%20Request%20CI/CD/badge.svg?branch=master)
 
-`pdf-visual-diff` is a library for testing visual regression in PDFs. It utilizes [pdf.js](https://github.com/mozilla/pdf.js) to convert PDFs into PNGs and [jimp](https://github.com/oliver-moran/jimp) for performing image comparisons.
+`pdf-visual-diff` is a library for testing visual regressions in PDFs. It uses [pdf.js](https://github.com/mozilla/pdf.js) to convert PDFs into PNGs and [jimp](https://github.com/oliver-moran/jimp) for image comparisons.
 
 ## Installation
 
-Please note that this library depends on canvas, so consult the [canvas](https://github.com/Automattic/node-canvas) documentation for any additional installation steps.
+This library depends on `canvas` package. Please refer to the [canvas documentation](https://github.com/Automattic/node-canvas) for any additional installation steps.
 
 ```sh
 npm install -D pdf-visual-diff
@@ -21,36 +21,35 @@ npm install -D pdf-visual-diff
 
 ## Description
 
-This package exports single function `comparePdfToSnapshot`. With the following signature:
+This package exports a single function, `comparePdfToSnapshot`, with the following signature:
 
 ```ts
 /**
- * Compare pdf to persisted snapshot. If one does not exist it is created
- * @param pdf - path to pdf file or pdf loaded as Buffer
- * @param snapshotDir - path to a directory where __snapshots__ folder is going to be created
- * @param snapshotName - uniq name of a snapshot in the above path
- * @param compareOptions - image comparison options
- * @param compareOptions.tolerance - number value for error tolerance, ranges 0-1 (default: 0)
- * @param compareOptions.maskRegions - `(page: number) => ReadonlyArray<RegionMask> | undefined` mask predefined regions per page, i.e. when there are parts of the pdf that change between tests
+ * Compares a PDF to a persisted snapshot. If a snapshot does not exists, one is created.
+ * 
+ * @param pdf - Path to the PDF file or a Buffer containing the PDF
+ * @param snapshotDir - Path to the directory where __snapshots__ folder will be created
+ * @param snapshotName - Unique name for the snapshot within the specified path
+ * @param compareOptions - Options for image comparison
  */
 type ComparePdfToSnapshot = (
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
-  compareImageOpts: Partial<CompareOptions> = {},
+  compareOptions: Partial<CompareOptions> = {},
 ) => Promise<boolean>
 ```
 
-When function is executed it has following **side** effects:
+When the function is executed, it has following **side effects**:
 
-- In absence of a previous snapshot file it converts pdf to an image, saves it as a snapshot and returns `true`
-- If there is a snapshot, then pdf is converted to an image and gets compared to the snapshot:
-  - if they differ function returns `false` and creates next to the snapshot image two other versions with suffixes `new` and `diff`. `new` one is the current view of the pdf as an image, where `diff` shows the difference between the snapshot and `new` images
-  - if they are equal function returns `true` and in case there are `new` and `diff` versions persisted it deletes them
+- If a previous snapshot file does not exist, the PDF is converted to an image, saved as a snapshot, and the function returns `true`.
+- If a snapshot exists, the PDF is converted to an image and compared to the snapshot:
+  - If they differ, the function returns `false` and creates two additional images next to the snapshot: one with the suffix `new` (the current view of the PDF as an image) and one with the suffix `diff` (showing the difference between the snapshot and the `new` image).
+  - If they are equal, the function returns `true`. If `new` and `diff` versions are present, they are deleted.
 
 ## Sample usage
 
-> **NB!** You can find sample projects inside  [examples](https://github.com/moshensky/pdf-visual-diff/tree/master/examples) folder.
+> **Note:** You can find sample projects in the [examples](https://github.com/moshensky/pdf-visual-diff/tree/master/examples) folder.
 
 Write a test file:
 
@@ -58,17 +57,17 @@ Write a test file:
 import { comparePdfToSnapshot } from 'pdf-visual-diff'
 import { expect } from 'chai'
 
-describe('test pdf report visual regression', () => {
-  const pathToPdf = 'path to your pdf' // or you might pass in Buffer instead
+describe('test PDF report visual regression', () => {
+  const pathToPdf = 'path to your PDF' // or you might pass a Buffer instead
   it('should pass', () =>
     comparePdfToSnapshot(pathToPdf, __dirname, 'my-awesome-report').then(
       (x) => expect(x).to.be.true,
     ))
 })
 
-// Example with masking regions of a two page pdf
-describe('pdf masking', () => {
-  it('should mask two page pdf', () => {
+// Example with masking regions of a two-page PDF
+describe('PDF masking', () => {
+  it('should mask two-page PDF', () => {
     const blueMask: RegionMask = {
       type: 'rectangle-mask',
       x: 50,
@@ -105,7 +104,7 @@ describe('pdf masking', () => {
 
 ## Tools
 
-`pdf-visual-diff` provides CLI for approving or discarding new PDF snapshots. The CLI can be used via `npx` or `npm` by updating the `scripts` section of your `package.json`:
+`pdf-visual-diff` provides a CLI for approving or discarding new PDF snapshots. The CLI can be used via `npx` or `npm` by updating the `scripts` section of your `package.json`:
 
 ```json
 "scripts": {
@@ -120,7 +119,7 @@ To approve new snapshots, run the following command in your terminal:
 npm run test:pdf-approve
 ```
 
-New snapshots paths will be listed. You will then be prompted to confirm whether you want to replace the old snapshots with the new ones:
+Paths for the new snapshots will be listed. You will then be prompted to confirm whether you want to replace the old snapshots with the new ones:
 
 ```sh
 New snapshots:
@@ -131,7 +130,7 @@ Are you sure you want to overwrite current snapshots? [Y/n]:
 
 These commands can be customized by specifying a custom path and snapshots folder name.
 
-Approve's command help:
+Approve command help:
 
 ```sh
 npx pdf-visual-diff approve --help
@@ -145,7 +144,7 @@ Options:
   -s, --snapshots-dir-name                            [default: "__snapshots__"]
 ```
 
-Discard's command help:
+Discard command help:
 
 ```sh
 npx pdf-visual-diff discard --help
@@ -161,7 +160,7 @@ Options:
 
 ## Usage with Jest
 
-This packages provides custom jest matcher `toMatchPdfSnapshot`
+This packages provides a custom Jest matcher `toMatchPdfSnapshot`.
 
 ### Setup
 
@@ -171,17 +170,17 @@ This packages provides custom jest matcher `toMatchPdfSnapshot`
 }
 ```
 
-If you are using **Typescript** add `import('pdf-visual-diff/lib/toMatchPdfSnapshot')` to your typings.
+If you are using **TypeScript** add `import('pdf-visual-diff/lib/toMatchPdfSnapshot')` to your typings.
 
 ### Usage
 
-All you have to do in your tests is pass a path to the pdf or pdf content as Buffer.
+In your tests, pass a path to the PDF or PDF content a Buffer.
 
 ```ts
-const pathToPdf = 'path to your pdf' // or you might pass in Buffer instead
-describe('test pdf report visual regression', () => {
+const pathToPdf = 'path to your PDF' // or you might pass a Buffer instead
+describe('test PDF report visual regression', () => {
   it('should match', () => expect(pathToPdf).toMatchPdfSnapshot())
 })
 ```
 
-As you can see no need to fiddle with any dirs nor names. Needed information is extracted from jest context.
+As you can see, there is no need to manage directories or names manually. The necessary information is extracted from the Jest context.

@@ -1,7 +1,7 @@
 import { join } from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
 import { pdf2png, writeImages } from './pdf2png'
-import { compareImages, CompareImagesOpts, HighlightColor } from './compare-images'
+import { compareImages, HighlightColor } from './compare-images'
 import Jimp from 'jimp'
 
 /**
@@ -23,8 +23,8 @@ export type RectangleMask = Readonly<{
 export type RegionMask = RectangleMask
 
 /**
- * Defines a function type for masking predefined regions on a PDF page, e.g.,
- * when certain parts of the PDF change between tests.
+ * Defines a function for masking predefined regions per page, useful for
+ * parts of the PDF that change between tests.
  *
  * @param page - The page number of the PDF.
  * @returns An array of region masks for the specified page, or undefined if no masks are defined.
@@ -57,10 +57,17 @@ const maskImgWithRegions =
     return images
   }
 
-export type CompareOptions = CompareImagesOpts &
-  Partial<{
-    maskRegions: MaskRegions
-  }>
+export type CompareOptions = Partial<{
+  // FIXME: import definition from CompareImgOpts
+  /**
+   * Number value for error tolerance, ranging from 0-1 (inclusive).
+   *
+   * @defaultValue 0
+   */
+  tolerance: number
+  // FIXME: import definition from the type
+  maskRegions: MaskRegions
+}>
 
 export const snapshotsDirName = '__snapshots__'
 
