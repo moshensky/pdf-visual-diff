@@ -1,12 +1,14 @@
-# Visual Regression Testing for PDFs in JavaScript
+# Test visual regression in PDFs
 
 [![NPM version][npm-badge-url]][npm-url]
 [![code style: prettier][prettier-badge-url]][prettier-url]
 ![Pull Request CI/CD](https://github.com/moshensky/pdf-visual-diff/workflows/Pull%20Request%20CI/CD/badge.svg?branch=master)
 
-Library for testing visual regression of PDFs. It uses [pdf.js](https://github.com/mozilla/pdf.js) for conversion of a pdf to png (in node pdf.js depends on [canvas](https://github.com/Automattic/node-canvas)). Than comparison is happening via [jimp](https://github.com/oliver-moran/jimp).
+`pdf-visual-diff` is a library for testing visual regression in PDFs. It utilizes [pdf.js](https://github.com/mozilla/pdf.js) to convert PDFs into PNGs and [jimp](https://github.com/oliver-moran/jimp) for performing image comparisons.
 
 ## Installation
+
+Please note that this library depends on canvas, so consult the [canvas](https://github.com/Automattic/node-canvas) documentation for any additional installation steps.
 
 ```sh
 npm install -D pdf-visual-diff
@@ -103,12 +105,31 @@ describe('pdf masking', () => {
 
 ## Tools
 
-pdf-visual-diff provides scripts for approving all new snapshots or discarding them. Add to your `scripts` section in `package.json`
+`pdf-visual-diff` provides scripts for approving or discarding new PDF snapshots. To use these scripts, add them to the `scripts` section of your `package.json`:
+
+```json
+"scripts": {
+  "test:pdf-approve": "pdf-visual-diff approve",
+  "test:pdf-discard": "pdf-visual-diff discard"
+}
+```
+
+To approve new snapshots, run the following command in your terminal:
 
 ```sh
-    "test:pdf-approve": "pdf-visual-diff approve",
-    "test:pdf-discard": "pdf-visual-diff discard",
+npm run test:pdf-approve
 ```
+
+New snapshots paths will be listed. You will then be prompted to confirm whether you want to replace the old snapshots with the new ones:
+
+```sh
+New snapshots:
+./__snapshots__/test_doc_1.new.png
+./__snapshots__/single-page-snapshot.new.png
+Are you sure you want to overwrite current snapshots? [Y/n]:
+```
+
+These commands can be customized by specifying a custom path and snapshots folder name.
 
 ```sh
 pdf-visual-diff approve
@@ -133,7 +154,6 @@ Options:
   -p, --path                                                      [default: "."]
   -s, --snapshots-dir-name                            [default: "__snapshots__"]
 ```
-
 
 ## Usage with Jest
 
