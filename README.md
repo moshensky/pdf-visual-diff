@@ -105,7 +105,7 @@ describe('pdf masking', () => {
 
 ## Tools
 
-`pdf-visual-diff` provides scripts for approving or discarding new PDF snapshots. To use these scripts, add them to the `scripts` section of your `package.json`:
+`pdf-visual-diff` provides CLI for approving or discarding new PDF snapshots. The CLI can be used via `npx` or `npm` by updating the `scripts` section of your `package.json`:
 
 ```json
 "scripts": {
@@ -131,8 +131,10 @@ Are you sure you want to overwrite current snapshots? [Y/n]:
 
 These commands can be customized by specifying a custom path and snapshots folder name.
 
+Approve's command help:
+
 ```sh
-pdf-visual-diff approve
+npx pdf-visual-diff approve --help
 
 Approve new snapshots
 
@@ -143,8 +145,10 @@ Options:
   -s, --snapshots-dir-name                            [default: "__snapshots__"]
 ```
 
+Discard's command help:
+
 ```sh
-pdf-visual-diff discard
+npx pdf-visual-diff discard --help
 
 Discard new snapshots and diffs
 
