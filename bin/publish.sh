@@ -50,6 +50,7 @@ rm -rf node_modules
 nvm use
 npm ci
 npm run build
+npm run build:docs
 npm pack
 npm publish
 

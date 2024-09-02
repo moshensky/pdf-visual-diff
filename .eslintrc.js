@@ -9,6 +9,6 @@ module.exports = {
     'plugin:prettier/recommended',
   ],
   rules: {
-    'tsdoc/syntax': 'warn',
+    'tsdoc/syntax': 'error',
   },
 }

@@ -65,7 +65,8 @@ export type CompareOptions = CompareImagesOpts &
 export const snapshotsDirName = '__snapshots__'
 
 /**
- * Compare pdf to persisted snapshot. If one does not exist it is created
+ * Compare PDF to persisted snapshot. If one does not exist it is created.
+ *
  * @param pdf - path to pdf file or pdf loaded as Buffer
  * @param snapshotDir - path to a directory where to create `__snapshots__` folder
  * @param snapshotName - uniq name of a snapshot in the above path

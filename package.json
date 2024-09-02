@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rm -rf ./lib ./coverage",
     "build": "npm run clean && npm run lint && npm run test && npm run tsc -- --noEmit false",
+    "build:docs": "npx typedoc src/index.ts --treatWarningsAsErrors",
     "tsc": "tsc --noEmit --pretty",
     "tsc:watch": "npm run tsc -- --watch",
     "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
