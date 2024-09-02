@@ -48,7 +48,7 @@ When function is executed it has following **side** effects:
 
 ## Sample usage
 
-> **NB!** You can find sample projects inside  [examples folder](examples).
+> **NB!** You can find sample projects inside  [examples](https://github.com/moshensky/pdf-visual-diff/tree/master/examples) folder.
 
 Write a test file:
 
