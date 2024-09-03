@@ -72,12 +72,29 @@ export type CompareOptions = Partial<{
 export const snapshotsDirName = '__snapshots__'
 
 /**
- * Compare PDF to persisted snapshot. If one does not exist it is created.
+ * Compares a PDF to a persisted snapshot. If a snapshot does not exists, one is
+ * created.
  *
- * @param pdf - path to pdf file or pdf loaded as Buffer
- * @param snapshotDir - path to a directory where to create `__snapshots__` folder
- * @param snapshotName - uniq name of a snapshot in the above path
- * @param compareOptions - image comparison options
+ * @remarks
+ * When the function is executed, it has following **side effects**:
+ * - If a previous snapshot file does not exist, the PDF is converted to an
+ *   image, saved as a snapshot, and the function returns `true`.
+ * - If a snapshot exists, the PDF is converted to an image and compared to the
+ *   snapshot:
+ *   - If they differ, the function returns `false` and creates two additional
+ *     images next to the snapshot: one with the suffix `new` (the current view
+ *     of the PDF as an image) and one with the suffix `diff` (showing the
+ *     difference between the snapshot and the `new` image).
+ *   - If they are equal, the function returns `true`. If `new` and `diff`
+ *     versions are present, they are deleted.
+ *
+ * @param pdf - Path to the PDF file or a Buffer containing the PDF
+ * @param snapshotDir - Path to the directory where `__snapshots__` folder will
+ * be created
+ * @param snapshotName - Unique name for the snapshot within the specified path
+ * @param compareOptions - Options for image comparison
+ * @returns A promise that resolves to `true` if the PDF matches the snapshot or
+ * if a new snapshot is created, and `false` if the PDF differs from the snapshot.
  */
 export const comparePdfToSnapshot = (
   pdf: string | Buffer,
