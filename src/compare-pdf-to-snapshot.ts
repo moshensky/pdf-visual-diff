@@ -20,11 +20,11 @@ export type HighlightColor =
 
 /**
  * Represents a rectangular mask applied at the PNG level, i.e., after the
- * conversion of the PDF to an image. The values provided for `x`, `y`, `width`,
- * and `height` are expected to be in pixels and based on the generated image by
- * the library.
+ * conversion of the PDF to an image.
  *
  * @remarks
+ * The values provided for `x`, `y`, `width`, and `height` are expected to be in
+ * pixels and based on the generated image by the library.
  * The origin (0,0) of the PNG's coordinate system is the top-left corner of the
  * image.
  */
