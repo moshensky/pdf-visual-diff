@@ -86,7 +86,7 @@ describe('comparePdfToSnapshot()', () => {
       height: 50,
       color: 'Green',
     }
-    const opts: Partial<CompareOptions> = {
+    const opts: CompareOptions = {
       maskRegions: () => [blueMask, greenMask],
     }
 

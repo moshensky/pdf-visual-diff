@@ -1,22 +1,44 @@
 import { join } from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
 import { pdf2png, writeImages } from './pdf2png'
-import { compareImages, HighlightColor } from './compare-images'
+import { compareImages } from './compare-images'
 import Jimp from 'jimp'
 
 /**
- * Rectangle mask is applied at the PNG level, i.e., after the conversion of the
- * PDF to an image. Therefore, the values provided for `x`, `y`, `width`, and
- * `height` are expected to be in pixels and based on the generated image by the
- * library. The origin (0,0) of the PNG's coordinate system is the top-left
- * corner of the image.
+ * Represents the available colors for highlighting.
+ */
+export type HighlightColor =
+  | 'Red'
+  | 'Green'
+  | 'Blue'
+  | 'White'
+  | 'Cyan'
+  | 'Magenta'
+  | 'Yellow'
+  | 'Black'
+  | 'Gray'
+
+/**
+ * Represents a rectangular mask applied at the PNG level, i.e., after the
+ * conversion of the PDF to an image. The values provided for `x`, `y`, `width`,
+ * and `height` are expected to be in pixels and based on the generated image by
+ * the library.
+ *
+ * @remarks
+ * The origin (0,0) of the PNG's coordinate system is the top-left corner of the
+ * image.
  */
 export type RectangleMask = Readonly<{
   type: 'rectangle-mask'
+  /** The x-coordinate of the top-left corner of the rectangle in pixels. */
   x: number
+  /** The y-coordinate of the top-left corner of the rectangle in pixels. */
   y: number
+  /** The width of the rectangle in pixels. */
   width: number
+  /** The height of the rectangle in pixels. */
   height: number
+  /** The color used for the mask. */
   color: HighlightColor
 }>
 
@@ -57,17 +79,24 @@ const maskImgWithRegions =
     return images
   }
 
-export type CompareOptions = Partial<{
-  // FIXME: import definition from CompareImgOpts
+/**
+ * The options type for {@link comparePdfToSnapshot}.
+ *
+ * @privateRemarks
+ * Explicitly not using `Partial`. It doesn't play nice with TypeDoc.
+ * Instead of showing the type name in the docs a Partial with all the
+ * fields is inlined.
+ */
+export type CompareOptions = {
   /**
-   * Number value for error tolerance, ranging from 0-1 (inclusive).
+   * Number value for error tolerance in the range [0, 1].
    *
    * @defaultValue 0
    */
-  tolerance: number
-  // FIXME: import definition from the type
-  maskRegions: MaskRegions
-}>
+  tolerance?: number
+  /** {@inheritDoc MaskRegions} */
+  maskRegions?: MaskRegions
+}
 
 export const snapshotsDirName = '__snapshots__'
 
@@ -88,20 +117,21 @@ export const snapshotsDirName = '__snapshots__'
  *   - If they are equal, the function returns `true`. If `new` and `diff`
  *     versions are present, they are deleted.
  *
- * @param pdf - Path to the PDF file or a Buffer containing the PDF
- * @param snapshotDir - Path to the directory where `__snapshots__` folder will
- * be created
- * @param snapshotName - Unique name for the snapshot within the specified path
- * @param compareOptions - Options for image comparison
- * @returns A promise that resolves to `true` if the PDF matches the snapshot or
+ * @returns
+ * A promise that resolves to `true` if the PDF matches the snapshot or
  * if a new snapshot is created, and `false` if the PDF differs from the snapshot.
  */
 export const comparePdfToSnapshot = (
+  /** Path to the PDF file or a Buffer containing the PDF. */
   pdf: string | Buffer,
+  /** Path to the directory where `__snapshots__` folder will be created. */
   snapshotDir: string,
+  /** Unique name for the snapshot within the specified path. */
   snapshotName: string,
-  { maskRegions = () => [], ...restOpts }: CompareOptions = {},
+  /** Check the type vor available options. */
+  options?: CompareOptions,
 ): Promise<boolean> => {
+  const { maskRegions = () => [], ...restOpts } = options || {}
   const dir = join(snapshotDir, snapshotsDirName)
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })

@@ -4,5 +4,5 @@ export {
   RegionMask,
   RectangleMask,
   CompareOptions,
+  HighlightColor,
 } from './compare-pdf-to-snapshot'
-export { CompareImagesOpts, HighlightColor } from './compare-images'
