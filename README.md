@@ -21,31 +21,28 @@ npm install -D pdf-visual-diff
 
 ## Description
 
-This package exports a single function, `comparePdfToSnapshot`, with the following signature:
+This package exports a single function, [comparePdfToSnapshot](https://moshensky.github.io/pdf-visual-diff), with the following signature:
 
 ```ts
-/**
- * Compares a PDF to a persisted snapshot. If a snapshot does not exists, one is created.
- * 
- * @param pdf - Path to the PDF file or a Buffer containing the PDF
- * @param snapshotDir - Path to the directory where __snapshots__ folder will be created
- * @param snapshotName - Unique name for the snapshot within the specified path
- * @param compareOptions - Options for image comparison
- */
-type ComparePdfToSnapshot = (
+function comparePdfToSnapshot(
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
-  compareOptions: Partial<CompareOptions> = {},
-) => Promise<boolean>
+  options?: CompareOptions
+): Promise<boolean>
 ```
 
+It compares a PDF to a persisted snapshot. If a snapshot does not exists, one is created.
 When the function is executed, it has following **side effects**:
 
 - If a previous snapshot file does not exist, the PDF is converted to an image, saved as a snapshot, and the function returns `true`.
 - If a snapshot exists, the PDF is converted to an image and compared to the snapshot:
   - If they differ, the function returns `false` and creates two additional images next to the snapshot: one with the suffix `new` (the current view of the PDF as an image) and one with the suffix `diff` (showing the difference between the snapshot and the `new` image).
   - If they are equal, the function returns `true`. If `new` and `diff` versions are present, they are deleted.
+
+Returns a promise that resolves to `true` if the PDF matches the snapshot or if a new snapshot is created, and `false` if the PDF differs from the snapshot.
+
+For further details and configuration options, please refer to the [API Documentation](https://moshensky.github.io/pdf-visual-diff).
 
 ## Sample usage
 

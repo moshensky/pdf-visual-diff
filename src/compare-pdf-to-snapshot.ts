@@ -121,7 +121,7 @@ export const snapshotsDirName = '__snapshots__'
  * A promise that resolves to `true` if the PDF matches the snapshot or
  * if a new snapshot is created, and `false` if the PDF differs from the snapshot.
  */
-export const comparePdfToSnapshot = (
+export function comparePdfToSnapshot(
   /** Path to the PDF file or a Buffer containing the PDF. */
   pdf: string | Buffer,
   /** Path to the directory where `__snapshots__` folder will be created. */
@@ -130,7 +130,7 @@ export const comparePdfToSnapshot = (
   snapshotName: string,
   /** Check the type vor available options. */
   options?: CompareOptions,
-): Promise<boolean> => {
+): Promise<boolean> {
   const { maskRegions = () => [], ...restOpts } = options || {}
   const dir = join(snapshotDir, snapshotsDirName)
   if (!existsSync(dir)) {
