@@ -21,7 +21,7 @@ npm install -D pdf-visual-diff
 
 ## Description
 
-This package exports a single function, [comparePdfToSnapshot](https://moshensky.github.io/pdf-visual-diff), with the following signature:
+This package exports a single function, [comparePdfToSnapshot](https://moshensky.github.io/pdf-visual-diff/functions/comparePdfToSnapshot.html), with the following signature:
 
 ```ts
 function comparePdfToSnapshot(
