@@ -9,22 +9,12 @@ export const mkDiffPath = (path: string): string => {
     : path.substring(0, dotIndex) + diffToken + path.substring(dotIndex)
 }
 
-export type HighlightColor =
-  | 'Red'
-  | 'Green'
-  | 'Blue'
-  | 'White'
-  | 'Cyan'
-  | 'Magenta'
-  | 'Yellow'
-  | 'Black'
-  | 'Gray'
-
+/** The options type for {@link compareImages}. */
 export type CompareImagesOpts = {
-  tolerance: number
+  tolerance?: number
 }
 
-const defaultOpts: CompareImagesOpts = {
+const defaultOpts: Required<CompareImagesOpts> = {
   tolerance: 0,
 }
 
@@ -45,11 +35,11 @@ type CompareImagesResult = CompareOK | CompareKO
 export const compareImages = async (
   expectedImagePath: string,
   images: ReadonlyArray<Jimp>,
-  compareImagesOpts: Partial<CompareImagesOpts> = {},
+  options?: CompareImagesOpts,
 ): Promise<CompareImagesResult> => {
   const { tolerance } = {
     ...defaultOpts,
-    ...compareImagesOpts,
+    ...options,
   }
   const expectedImg = await read(expectedImagePath)
   // Multi image comparison not implemented!

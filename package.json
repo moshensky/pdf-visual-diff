@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rm -rf ./lib ./coverage",
     "build": "npm run clean && npm run lint && npm run test && npm run tsc -- --noEmit false",
+    "build:docs": "npx typedoc src/index.ts --treatWarningsAsErrors",
     "tsc": "tsc --noEmit --pretty",
     "tsc:watch": "npm run tsc -- --watch",
     "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
@@ -58,9 +59,11 @@
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-tsdoc": "^0.3.0",
     "mocha": "^10.2.0",
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1",
+    "typedoc": "^0.26.6",
     "typescript": "^5.0.4"
   }
 }
