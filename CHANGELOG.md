@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.0 / 2024-09-06
+
+- [#58](https://github.com/moshensky/pdf-visual-diff/issues/58): Expose option to set rendering DPI.
+- [PR#65](https://github.com/moshensky/pdf-visual-diff/pull/65): Add [API documentation](https://moshensky.github.io/pdf-visual-diff/).
+
 ## 0.9.0 / 2023-09-04
 
 - [PR#54](https://github.com/moshensky/pdf-visual-diff/pull/54): Export MaskRegions type.
@@ -12,7 +17,7 @@
 
 - [#51](https://github.com/moshensky/pdf-visual-diff/issues/51): Enable mask regions for multi page pdfs. It is possible to have different mask regions per each page. This is an api **BREAKING CHANGE**.
 
-If you haven't used `maskRegions` then you don't have to change anything. 
+If you haven't used `maskRegions` then you don't have to change anything.
 `maskRegions` is changed from `ReadonlyArray<RegionMask>` to `(page: number) => ReadonlyArray<RegionMask>`. Straight forward code update could be:
 
 ```ts
@@ -37,8 +42,6 @@ const opts = {
 
 comparePdfToSnapshot( singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts)
 ```
-
-
 
 ## 0.7.1 / 2023-02-23
 
