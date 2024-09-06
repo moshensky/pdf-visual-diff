@@ -1,9 +1,9 @@
 import { join } from 'path'
 import { pdf2png } from './pdf2png'
-import { compareImages } from './compare-images'
+import { compareImages } from '../compare-images'
 import { expect } from 'chai'
 
-const testDataDir = join(__dirname, './test-data')
+const testDataDir = join(__dirname, '../test-data')
 const pdfs = join(testDataDir, 'pdfs')
 const twoPage = join(pdfs, 'two-page.pdf')
 const cmaps = join(pdfs, 'cmaps.pdf')

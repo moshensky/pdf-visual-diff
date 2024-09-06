@@ -1,5 +1,5 @@
 import Jimp, { read } from 'jimp'
-import { mergeImages } from './merge-images'
+import { mergeImages } from './imageUtils'
 
 const diffToken = '.diff'
 export const mkDiffPath = (path: string): string => {

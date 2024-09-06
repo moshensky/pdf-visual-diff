@@ -1,8 +1,10 @@
-import { join } from 'path'
+import path from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
-import { pdf2png, Pdf2PngOpts, writeImages } from './pdf2png'
+import { pdf2png } from './pdf2png/pdf2png'
 import { compareImages } from './compare-images'
 import Jimp from 'jimp'
+import { Pdf2PngOpts } from './types'
+import { writeImages } from './imageUtils'
 
 /**
  * Represents the available colors for highlighting.
@@ -96,6 +98,7 @@ export type CompareOptions = {
   tolerance?: number
   /** {@inheritDoc MaskRegions} */
   maskRegions?: MaskRegions
+  /** {@inheritDoc Pdf2PngOpts} */
   pdf2PngOptions?: Pdf2PngOpts
 }
 
@@ -133,12 +136,12 @@ export function comparePdfToSnapshot(
   options?: CompareOptions,
 ): Promise<boolean> {
   const { maskRegions = () => [], pdf2PngOptions, ...restOpts } = options || {}
-  const dir = join(snapshotDir, snapshotsDirName)
+  const dir = path.join(snapshotDir, snapshotsDirName)
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
   }
 
-  const snapshotPath = join(dir, snapshotName + '.png')
+  const snapshotPath = path.join(dir, snapshotName + '.png')
 
   if (!existsSync(snapshotPath)) {
     return pdf2png(pdf, pdf2PngOptions)
@@ -151,7 +154,7 @@ export function comparePdfToSnapshot(
     .then(maskImgWithRegions(maskRegions))
     .then((images) =>
       compareImages(snapshotPath, images, restOpts).then((result) => {
-        const diffSnapshotPath = join(dir, snapshotName + '.diff.png')
+        const diffSnapshotPath = path.join(dir, snapshotName + '.diff.png')
         if (result.equal) {
           if (existsSync(diffSnapshotPath)) {
             unlinkSync(diffSnapshotPath)
@@ -159,7 +162,7 @@ export function comparePdfToSnapshot(
           return true
         }
 
-        const newSnapshotPath = join(dir, snapshotName + '.new.png')
+        const newSnapshotPath = path.join(dir, snapshotName + '.new.png')
         return writeImages(newSnapshotPath)(images)
           .then(() => writeImages(diffSnapshotPath)(result.diffs.map((x) => x.diff)))
           .then(() => false)
