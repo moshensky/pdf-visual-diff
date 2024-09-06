@@ -6,6 +6,7 @@ import { Dpi } from '../types'
 
 const testDataDir = join(__dirname, '../test-data')
 const pdfs = join(testDataDir, 'pdfs')
+const singlePage = join(pdfs, 'single-page.pdf')
 const twoPage = join(pdfs, 'two-page.pdf')
 const cmaps = join(pdfs, 'cmaps.pdf')
 
@@ -40,6 +41,13 @@ describe('pdf2png()', () => {
       .then((results) => {
         results.forEach((x) => expect(x.equal).to.be.true)
       })
+  })
+
+  it('should scale using custom DPI', () => {
+    const expectedImagePath = join(expectedDir, 'should_scale_using_custom_DPI.png')
+    return pdf2png(singlePage, { dpi: 200 })
+      .then((imgs) => compareImages(expectedImagePath, imgs))
+      .then((result) => expect(result.equal).to.be.true)
   })
 
   it('pdf that requires cmaps', () => {
