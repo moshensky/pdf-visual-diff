@@ -1,6 +1,6 @@
 import { join } from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
-import { pdf2png, writeImages } from './pdf2png'
+import { pdf2png, Pdf2PngOpts, writeImages } from './pdf2png'
 import { compareImages } from './compare-images'
 import Jimp from 'jimp'
 
@@ -96,6 +96,7 @@ export type CompareOptions = {
   tolerance?: number
   /** {@inheritDoc MaskRegions} */
   maskRegions?: MaskRegions
+  pdf2PngOptions?: Pdf2PngOpts
 }
 
 export const snapshotsDirName = '__snapshots__'
@@ -131,7 +132,7 @@ export function comparePdfToSnapshot(
   /** Check the type for available options. */
   options?: CompareOptions,
 ): Promise<boolean> {
-  const { maskRegions = () => [], ...restOpts } = options || {}
+  const { maskRegions = () => [], pdf2PngOptions, ...restOpts } = options || {}
   const dir = join(snapshotDir, snapshotsDirName)
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
@@ -140,13 +141,13 @@ export function comparePdfToSnapshot(
   const snapshotPath = join(dir, snapshotName + '.png')
 
   if (!existsSync(snapshotPath)) {
-    return pdf2png(pdf)
+    return pdf2png(pdf, pdf2PngOptions)
       .then(maskImgWithRegions(maskRegions))
       .then(writeImages(snapshotPath))
       .then(() => true)
   }
 
-  return pdf2png(pdf)
+  return pdf2png(pdf, pdf2PngOptions)
     .then(maskImgWithRegions(maskRegions))
     .then((images) =>
       compareImages(snapshotPath, images, restOpts).then((result) => {

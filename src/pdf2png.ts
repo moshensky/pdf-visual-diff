@@ -67,12 +67,18 @@ const CMAP_PACKED = true
 // Where the standard fonts are located.
 const STANDARD_FONT_DATA_URL = path.join(PDFJS_DIR, '../standard_fonts/')
 
-export type Pdf2PngOpts = Readonly<{
-  // Slower, but better resolution
-  scaleImage: boolean
-}>
+/** The options type for {@link pdf2png}. */
+export type Pdf2PngOpts = {
+  /**
+   * Indicates whether to upscale the image resolution from 72 DPI to 144 DPI.
+   * Enabling this option results in a slower conversion process but produces a higher resolution image.
+   *
+   * @defaultValue true
+   */
+  scaleImage?: boolean
+}
 
-const pdf2PngDefOpts: Pdf2PngOpts = {
+const pdf2PngDefOpts: Required<Pdf2PngOpts> = {
   scaleImage: true,
 }
 
@@ -93,7 +99,7 @@ function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfj
 
 export async function pdf2png(
   pdf: string | Buffer,
-  options: Partial<Pdf2PngOpts> = {},
+  options: Pdf2PngOpts = {},
 ): Promise<ReadonlyArray<Jimp>> {
   const opts = {
     ...pdf2PngDefOpts,

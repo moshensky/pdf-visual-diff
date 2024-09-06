@@ -11,6 +11,21 @@ const cmaps = join(pdfs, 'cmaps.pdf')
 const expectedDir = join(testDataDir, 'pdf2png-expected')
 
 describe('pdf2png()', () => {
+  it('two-page.pdf png per page with scaling', () => {
+    const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_scaled_1.png')
+    const expectedImage2Path = join(expectedDir, 'two-page_png_per_page_scaled_2.png')
+    return pdf2png(twoPage, { scaleImage: true })
+      .then((imgs) =>
+        Promise.all([
+          compareImages(expectedImage1Path, [imgs[0]]),
+          compareImages(expectedImage2Path, [imgs[1]]),
+        ]),
+      )
+      .then((results) => {
+        results.forEach((x) => expect(x.equal).to.be.true)
+      })
+  })
+
   it('two-page.pdf png per page and without scaling', () => {
     const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_1.png')
     const expectedImage2Path = join(expectedDir, 'two-page_png_per_page_2.png')

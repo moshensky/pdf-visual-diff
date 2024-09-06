@@ -56,8 +56,12 @@ describe('comparePdfToSnapshot()', () => {
     const twoPage = join(pdfs, 'two-page.pdf')
     const expectedDir = join(testDataDir, 'pdf2png-expected')
 
-    const testPdf2png = (pdf: string | Buffer, expectedImageName: string): Promise<void> => {
-      return comparePdfToSnapshot(pdf, expectedDir, expectedImageName).then((x) => {
+    const testPdf2png = (
+      pdf: string | Buffer,
+      expectedImageName: string,
+      options?: CompareOptions,
+    ): Promise<void> => {
+      return comparePdfToSnapshot(pdf, expectedDir, expectedImageName, options).then((x) => {
         expect(x).to.be.true
       })
     }
@@ -65,6 +69,10 @@ describe('comparePdfToSnapshot()', () => {
     it('single-page-small.pdf', () => testPdf2png(singlePageSmall, 'single-page-small'))
     it('single-page.pdf', () => testPdf2png(singlePage, 'single-page'))
     it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview')).timeout(40000)
+    it('TAMReview.pdf without scaling', () =>
+      testPdf2png(tamReview, 'TAMReview_without_scaling', {
+        pdf2PngOptions: { scaleImage: false },
+      })).timeout(40000)
     it('two-page.pdf', () => testPdf2png(twoPage, 'two-page'))
     it('two-page.pdf buffer', () => fs.readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
   })
@@ -94,6 +102,34 @@ describe('comparePdfToSnapshot()', () => {
       comparePdfToSnapshot(singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts).then(
         (x) => expect(x).to.be.true,
       ))
+
+    it('should succeed comparing masked pdf without scaling', () => {
+      const blueMaskSmall: RegionMask = {
+        type: 'rectangle-mask',
+        x: 25,
+        y: 37,
+        width: 70,
+        height: 50,
+        color: 'Blue',
+      }
+      const greenMaskSmall: RegionMask = {
+        type: 'rectangle-mask',
+        x: 55,
+        y: 100,
+        width: 45,
+        height: 25,
+        color: 'Green',
+      }
+      return comparePdfToSnapshot(
+        singlePagePdfPath,
+        __dirname,
+        'mask-rectangle-masks_without_scaling',
+        {
+          pdf2PngOptions: { scaleImage: false },
+          maskRegions: () => [blueMaskSmall, greenMaskSmall],
+        },
+      ).then((x) => expect(x).to.be.true)
+    })
 
     it('should mask multi page pdf', () =>
       comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-multi-page-pdf', opts).then(
