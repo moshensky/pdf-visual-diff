@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, unlinkSync } from 'fs'
 import { pdf2png } from './pdf2png/pdf2png'
 import { compareImages } from './compare-images'
 import Jimp from 'jimp'
-import { Pdf2PngOpts } from './types'
+import { PdfToPngOptions } from './types'
 import { writeImages } from './imageUtils'
 
 /**
@@ -98,8 +98,8 @@ export type CompareOptions = {
   tolerance?: number
   /** {@inheritDoc MaskRegions} */
   maskRegions?: MaskRegions
-  /** {@inheritDoc Pdf2PngOpts} */
-  pdf2PngOptions?: Pdf2PngOpts
+  /** {@inheritDoc PdfToPngOptions} */
+  pdf2PngOptions?: PdfToPngOptions
 }
 
 export const snapshotsDirName = '__snapshots__'

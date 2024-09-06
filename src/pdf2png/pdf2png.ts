@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
 import Jimp, { read } from 'jimp'
-import { Pdf2PngOpts } from '../types'
+import { PdfToPngOptions, Dpi } from '../types'
 import { convertFromMmToPx, convertFromPxToMm } from '../conversions'
 import { NodeCanvasFactory } from './nodeCanvasFactory'
 
@@ -16,28 +16,30 @@ const CMAP_PACKED = true
 // Where the standard fonts are located.
 const STANDARD_FONT_DATA_URL = path.join(PDFJS_DIR, '../standard_fonts/')
 
-const pdf2PngDefOpts: Required<Pdf2PngOpts> = {
-  scaleImage: true,
+const pdf2PngDefOpts: Required<PdfToPngOptions> = {
+  dpi: Dpi.High,
 }
 
-function getPageViewPort(page: pdfjsLib.PDFPageProxy, scaleImage: boolean): pdfjsLib.PageViewport {
+const PDF_DPI = 72
+function getPageViewPort(page: pdfjsLib.PDFPageProxy, dpi: Dpi | number): pdfjsLib.PageViewport {
+  const dpiNum = dpi === Dpi.Low ? PDF_DPI : dpi === Dpi.High ? 144 : dpi
   const viewport = page.getViewport({ scale: 1.0 })
-  if (scaleImage === false) {
+  if (dpiNum === PDF_DPI) {
     return viewport
   }
 
   // Increase resolution
-  const horizontalMm = convertFromPxToMm(viewport.width, 72)
-  const verticalMm = convertFromPxToMm(viewport.height, 72)
-  const actualWidth = convertFromMmToPx(horizontalMm, 144)
-  const actualHeight = convertFromMmToPx(verticalMm, 144)
+  const horizontalMm = convertFromPxToMm(viewport.width, PDF_DPI)
+  const verticalMm = convertFromPxToMm(viewport.height, PDF_DPI)
+  const actualWidth = convertFromMmToPx(horizontalMm, dpiNum)
+  const actualHeight = convertFromMmToPx(verticalMm, dpiNum)
   const scale = Math.min(actualWidth / viewport.width, actualHeight / viewport.height)
   return page.getViewport({ scale })
 }
 
 export async function pdf2png(
   pdf: string | Buffer,
-  options: Pdf2PngOpts = {},
+  options: PdfToPngOptions = {},
 ): Promise<ReadonlyArray<Jimp>> {
   const opts = {
     ...pdf2PngDefOpts,
@@ -63,7 +65,7 @@ export async function pdf2png(
   const images: Buffer[] = []
   for (let idx = 1; idx <= numPages; idx += 1) {
     const page = await pdfDocument.getPage(idx)
-    const viewport = getPageViewPort(page, opts.scaleImage)
+    const viewport = getPageViewPort(page, opts.dpi)
     canvasFactory.reset(canvasAndContext, viewport.width, viewport.height)
     // TODO: fix types
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

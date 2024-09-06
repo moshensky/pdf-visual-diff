@@ -2,6 +2,7 @@ import { join } from 'path'
 import { pdf2png } from './pdf2png'
 import { compareImages } from '../compare-images'
 import { expect } from 'chai'
+import { Dpi } from '../types'
 
 const testDataDir = join(__dirname, '../test-data')
 const pdfs = join(testDataDir, 'pdfs')
@@ -14,7 +15,7 @@ describe('pdf2png()', () => {
   it('two-page.pdf png per page with scaling', () => {
     const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_scaled_1.png')
     const expectedImage2Path = join(expectedDir, 'two-page_png_per_page_scaled_2.png')
-    return pdf2png(twoPage, { scaleImage: true })
+    return pdf2png(twoPage, { dpi: Dpi.High })
       .then((imgs) =>
         Promise.all([
           compareImages(expectedImage1Path, [imgs[0]]),
@@ -29,7 +30,7 @@ describe('pdf2png()', () => {
   it('two-page.pdf png per page and without scaling', () => {
     const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_1.png')
     const expectedImage2Path = join(expectedDir, 'two-page_png_per_page_2.png')
-    return pdf2png(twoPage, { scaleImage: false })
+    return pdf2png(twoPage, { dpi: Dpi.Low })
       .then((imgs) =>
         Promise.all([
           compareImages(expectedImage1Path, [imgs[0]]),

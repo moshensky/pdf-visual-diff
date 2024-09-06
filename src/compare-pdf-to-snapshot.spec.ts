@@ -10,6 +10,7 @@ import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
 import { compareImages } from './compare-images'
 import fs0 from 'fs'
+import { Dpi } from './types'
 const fs = fs0.promises
 
 const testDataDir = join(__dirname, './test-data')
@@ -71,7 +72,7 @@ describe('comparePdfToSnapshot()', () => {
     it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview')).timeout(40000)
     it('TAMReview.pdf without scaling', () =>
       testPdf2png(tamReview, 'TAMReview_without_scaling', {
-        pdf2PngOptions: { scaleImage: false },
+        pdf2PngOptions: { dpi: Dpi.Low },
       })).timeout(40000)
     it('two-page.pdf', () => testPdf2png(twoPage, 'two-page'))
     it('two-page.pdf buffer', () => fs.readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
@@ -125,7 +126,7 @@ describe('comparePdfToSnapshot()', () => {
         __dirname,
         'mask-rectangle-masks_without_scaling',
         {
-          pdf2PngOptions: { scaleImage: false },
+          pdf2PngOptions: { dpi: 72 },
           maskRegions: () => [blueMaskSmall, greenMaskSmall],
         },
       ).then((x) => expect(x).to.be.true)
