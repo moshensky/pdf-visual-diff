@@ -32,3 +32,5 @@ jobs:
           path: ${{ github.workspace }}/src/__snapshots__/
       - name: Run lint
         run: npm run lint
+      - name: Make sure docs can be build
+        run: npm run build:docs
