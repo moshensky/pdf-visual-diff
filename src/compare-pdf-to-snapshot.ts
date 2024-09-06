@@ -128,7 +128,7 @@ export function comparePdfToSnapshot(
   snapshotDir: string,
   /** Unique name for the snapshot within the specified path. */
   snapshotName: string,
-  /** Check the type vor available options. */
+  /** Check the type for available options. */
   options?: CompareOptions,
 ): Promise<boolean> {
   const { maskRegions = () => [], ...restOpts } = options || {}
