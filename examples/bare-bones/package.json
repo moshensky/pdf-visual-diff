@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pdf-visual-diff": "^0.5.0"
+    "pdf-visual-diff": "^0.10.0"
+  },
+  "engines": {
+    "node": ">=20.17.0"
   }
 }
