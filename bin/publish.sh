@@ -38,12 +38,8 @@ if [ ! -z "$(git status --porcelain)" ]; then
   exit 1
 fi
 
-# Replace version in package.json and package-lock.json files
-for package_path in package.json package-lock.json
-do
-    awk '{if (match($0, /^  "version"/) > 0) print "  \"version\": \"'${new_version}'\"," ;else print}' $package_path > tmp
-    mv tmp $package_path
-done
+# Update version in package.json and package-lock.json
+npm version $new_version --no-git-tag-version
 
 rm -rf node_modules
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
