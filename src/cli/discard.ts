@@ -2,9 +2,7 @@
 
 import { CommandModule } from 'yargs'
 import { askForConfirmation, findImages } from './utils'
-import fs0 from 'fs'
-
-const fs = fs0.promises
+import * as fs from 'fs/promises'
 
 type Arguments = {
   [x: string]: unknown

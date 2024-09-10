@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
-import Jimp, { read } from 'jimp'
+import * as Jimp from 'jimp'
 import { PdfToPngOptions, Dpi } from '../types'
 import { convertFromMmToPx, convertFromPxToMm } from '../conversions'
 import { NodeCanvasFactory } from './nodeCanvasFactory'
@@ -76,5 +76,5 @@ export async function pdf2png(
     images.push(image)
   }
 
-  return Promise.all(images.map((x) => read(x)))
+  return Promise.all(images.map((x) => Jimp.read(x)))
 }

@@ -1,8 +1,8 @@
-import path from 'path'
+import * as path from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
 import { pdf2png } from './pdf2png/pdf2png'
 import { compareImages } from './compare-images'
-import Jimp from 'jimp'
+import * as Jimp from 'jimp'
 import { PdfToPngOptions } from './types'
 import { writeImages } from './imageUtils'
 

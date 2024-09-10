@@ -1,5 +1,5 @@
-import Jimp from 'jimp'
-import path from 'path'
+import * as Jimp from 'jimp'
+import * as path from 'path'
 import { mergeImages } from './mergeImages'
 
 /**

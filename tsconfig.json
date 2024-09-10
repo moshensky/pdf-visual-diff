@@ -21,7 +21,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": false,
   },
   "include": ["./src/**/*"]
 }

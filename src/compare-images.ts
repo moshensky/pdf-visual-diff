@@ -1,4 +1,4 @@
-import Jimp, { read } from 'jimp'
+import * as Jimp from 'jimp'
 import { mergeImages } from './imageUtils'
 
 const diffToken = '.diff'
@@ -41,7 +41,7 @@ export const compareImages = async (
     ...defaultOpts,
     ...options,
   }
-  const expectedImg = await read(expectedImagePath)
+  const expectedImg = await Jimp.read(expectedImagePath)
   // Multi image comparison not implemented!
   const img = mergeImages(images)
   const diff = Jimp.diff(expectedImg, img, tolerance)

@@ -9,9 +9,8 @@ import { join } from 'path'
 import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
 import { compareImages } from './compare-images'
-import fs0 from 'fs'
+import * as fs from 'fs/promises'
 import { Dpi } from './types'
-const fs = fs0.promises
 
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
