@@ -14,7 +14,7 @@
     "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write .eslintrc.js .prettierrc.json tsconfig.json .mocharc.json",
-    "test": "mocha",
+    "test": "npx mocha --require ts-node/register --extension ts --timeout 10000 \"src/**/*.spec.ts\"",
     "test:watch": "npm test -- --watch",
     "license-checker": "npx license-checker --production --onlyAllow 'MIT; MIT OR X11; BSD; ISC; Apache-2.0; Unlicense' --excludePackages 'pdf-visual-diff'",
     "update-deps": "npx npm-check-updates --configFileName .ncurc.js"
@@ -43,7 +43,7 @@
     "canvas": "^2.11.2",
     "glob": "^10.2.1",
     "jimp": "^0.22.7",
-    "pdfjs-dist": "^3.7.107",
+    "pdfjs-dist": "^4.6.82",
     "yargs": "^17.7.1"
   },
   "devDependencies": {

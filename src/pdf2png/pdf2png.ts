@@ -1,27 +1,29 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'
 import * as Jimp from 'jimp'
 import { PdfToPngOptions, Dpi } from '../types'
 import { convertFromMmToPx, convertFromPxToMm } from '../conversions'
 import { NodeCanvasFactory } from './nodeCanvasFactory'
+import type { PDFPageProxy, PageViewport } from 'pdfjs-dist'
+import { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api'
 
 // pdfjs location
 const PDFJS_DIR = path.dirname(require.resolve('pdfjs-dist'))
 
-// Some PDFs need external cmaps.
-const CMAP_URL = path.join(PDFJS_DIR, '../cmaps/')
-const CMAP_PACKED = true
-
-// Where the standard fonts are located.
-const STANDARD_FONT_DATA_URL = path.join(PDFJS_DIR, '../standard_fonts/')
+const DOCUMENT_INIT_PARAMS_DEFAULTS: DocumentInitParameters = {
+  // Where the standard fonts are located.
+  standardFontDataUrl: path.join(PDFJS_DIR, '../standard_fonts/'),
+  // Some PDFs need external cmaps.
+  cMapUrl: path.join(PDFJS_DIR, '../cmaps/'),
+  cMapPacked: true,
+}
 
 const pdf2PngDefOpts: Required<PdfToPngOptions> = {
   dpi: Dpi.High,
 }
 
 const PDF_DPI = 72
-function getPageViewPort(page: pdfjsLib.PDFPageProxy, dpi: Dpi | number): pdfjsLib.PageViewport {
+function getPageViewPort(page: PDFPageProxy, dpi: Dpi | number): PageViewport {
   const dpiNum = dpi === Dpi.Low ? PDF_DPI : dpi === Dpi.High ? 144 : dpi
   const viewport = page.getViewport({ scale: 1.0 })
   if (dpiNum === PDF_DPI) {
@@ -41,6 +43,8 @@ export async function pdf2png(
   pdf: string | Buffer,
   options: PdfToPngOptions = {},
 ): Promise<ReadonlyArray<Jimp>> {
+  const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs')
+
   const opts = {
     ...pdf2PngDefOpts,
     ...options,
@@ -48,11 +52,9 @@ export async function pdf2png(
 
   // Load PDF
   const data = new Uint8Array(Buffer.isBuffer(pdf) ? pdf : fs.readFileSync(pdf))
-  const loadingTask = pdfjsLib.getDocument({
+  const loadingTask = getDocument({
     data,
-    cMapUrl: CMAP_URL,
-    cMapPacked: CMAP_PACKED,
-    standardFontDataUrl: STANDARD_FONT_DATA_URL,
+    ...DOCUMENT_INIT_PARAMS_DEFAULTS,
   })
 
   const pdfDocument = await loadingTask.promise
