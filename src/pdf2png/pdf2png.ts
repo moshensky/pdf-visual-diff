@@ -1,20 +1,20 @@
-import * as fs from 'fs'
+import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as Jimp from 'jimp'
 import { PdfToPngOptions, Dpi } from '../types'
 import { convertFromMmToPx, convertFromPxToMm } from '../conversions'
-import { NodeCanvasFactory } from './nodeCanvasFactory'
+import { mkCanvas } from './nodeCanvasFactory'
 import type { PDFPageProxy, PageViewport } from 'pdfjs-dist'
-import { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api'
+import { DocumentInitParameters, RenderParameters } from 'pdfjs-dist/types/src/display/api'
 
 // pdfjs location
-const PDFJS_DIR = path.dirname(require.resolve('pdfjs-dist'))
+const PDFJS_DIR = path.join(path.dirname(require.resolve('pdfjs-dist')), '..')
 
 const DOCUMENT_INIT_PARAMS_DEFAULTS: DocumentInitParameters = {
   // Where the standard fonts are located.
-  standardFontDataUrl: path.join(PDFJS_DIR, '../standard_fonts/'),
+  standardFontDataUrl: path.join(PDFJS_DIR, 'standard_fonts/'),
   // Some PDFs need external cmaps.
-  cMapUrl: path.join(PDFJS_DIR, '../cmaps/'),
+  cMapUrl: path.join(PDFJS_DIR, 'cmaps/'),
   cMapPacked: true,
 }
 
@@ -51,32 +51,34 @@ export async function pdf2png(
   }
 
   // Load PDF
-  const data = new Uint8Array(Buffer.isBuffer(pdf) ? pdf : fs.readFileSync(pdf))
+  const pdfBuffer = await (Buffer.isBuffer(pdf) ? Promise.resolve(pdf) : fs.readFile(pdf))
   const loadingTask = getDocument({
-    data,
     ...DOCUMENT_INIT_PARAMS_DEFAULTS,
+    data: new Uint8Array(pdfBuffer),
   })
 
   const pdfDocument = await loadingTask.promise
   const numPages = pdfDocument.numPages
 
-  const canvasFactory = new NodeCanvasFactory()
-  const canvasAndContext = canvasFactory.create(1, 1)
+  const canvas = mkCanvas()
 
   // Generate images
   const images: Buffer[] = []
   for (let idx = 1; idx <= numPages; idx += 1) {
     const page = await pdfDocument.getPage(idx)
     const viewport = getPageViewPort(page, opts.dpi)
-    canvasFactory.reset(canvasAndContext, viewport.width, viewport.height)
-    // TODO: fix types
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    await page.render({ canvasContext: canvasAndContext.context, viewport }).promise
+    canvas.set(viewport.width, viewport.height)
+    const renderParameters: RenderParameters = {
+      // @ts-expect-error type mismatch between web and node.js canvas
+      canvasContext: canvas.context,
+      viewport,
+    }
+    await page.render(renderParameters).promise
     page.cleanup()
-    const image = canvasAndContext.canvas.toBuffer('image/png')
-    images.push(image)
+    images.push(canvas.toPng())
   }
+
+  canvas.destroy()
 
   return Promise.all(images.map((x) => Jimp.read(x)))
 }
