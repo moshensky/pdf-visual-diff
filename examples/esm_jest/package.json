@@ -4,7 +4,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js ./src/jest_test_runner.test.js",
+    "test:node-runner": "node --test ./src/node_test_runner.test.js",
+    "test": "npm run test:jest && npm run test:node-runner"
   },
   "keywords": [],
   "author": "",
