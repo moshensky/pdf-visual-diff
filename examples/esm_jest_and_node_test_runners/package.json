@@ -1,0 +1,21 @@
+{
+  "name": "esm_jest",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js ./src/jest_test_runner.test.js",
+    "test:node-runner": "node --test ./src/node_test_runner.test.js",
+    "test": "npm run test:jest && npm run test:node-runner"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "pdf-visual-diff": "^0.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
