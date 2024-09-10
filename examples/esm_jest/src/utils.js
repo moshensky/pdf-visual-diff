@@ -7,3 +7,4 @@ const pdfDir = join(__dirname, '..', 'pdf')
 
 export const pathToPdf = join(pdfDir, 'test_doc_1.pdf')
 export const pathToChangedPdf = join(pdfDir, 'test_doc_1_changed.pdf')
+export const snapshotDir = __dirname
