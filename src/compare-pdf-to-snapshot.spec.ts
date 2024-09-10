@@ -1,4 +1,4 @@
-import { read } from 'jimp'
+import { Jimp, JimpInstance } from 'jimp'
 import {
   comparePdfToSnapshot,
   snapshotsDirName,
@@ -178,7 +178,8 @@ describe('comparePdfToSnapshot()', () => {
       }
       return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
         .then((x) => expect(x).to.be.true)
-        .then(() => read(snapshotPath))
+        .then(() => Jimp.read(snapshotPath))
+        .then((x) => x as JimpInstance)
         .then((img) =>
           compareImages(expectedImagePath, [img], { tolerance: 0 }).then((x) =>
             expect(x.equal).to.eq(

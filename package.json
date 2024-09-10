@@ -42,7 +42,7 @@
   "dependencies": {
     "canvas": "^2.11.2",
     "glob": "^10.2.1",
-    "jimp": "^0.22.7",
+    "jimp": "^1.6.0",
     "pdfjs-dist": "^4.6.82",
     "yargs": "^17.7.1"
   },

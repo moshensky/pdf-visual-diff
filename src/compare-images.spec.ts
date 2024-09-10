@@ -2,7 +2,7 @@ import { compareImages, mkDiffPath } from './compare-images'
 import { expect } from 'chai'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import { read } from 'jimp'
+import { Jimp, JimpInstance } from 'jimp'
 
 describe('mkDiffPath()', () => {
   it('should mk path with extension', () =>
@@ -27,7 +27,8 @@ const image2Path = join(testDataDir, sampleImage2)
 
 describe('compareImages()', () => {
   it('should succeed comparing', () =>
-    read(imagePath)
+    Jimp.read(imagePath)
+      .then((x) => x as JimpInstance)
       .then((img) => compareImages(expectedImagePath, [img]))
       .then((x) => {
         expect(x.equal).to.be.true
@@ -35,7 +36,8 @@ describe('compareImages()', () => {
       }))
 
   it('should fail comparing and output diff', () =>
-    read(image2Path)
+    Jimp.read(image2Path)
+      .then((x) => x as JimpInstance)
       .then((img) => compareImages(expectedImagePath, [img]))
       .then((x) => {
         expect(x.equal).to.be.false

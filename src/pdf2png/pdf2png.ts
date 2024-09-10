@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
-import * as Jimp from 'jimp'
+import { Jimp, JimpInstance } from 'jimp'
 import { PdfToPngOptions, Dpi } from '../types'
 import { convertFromMmToPx, convertFromPxToMm } from '../conversions'
 import { mkCanvas } from './nodeCanvasFactory'
@@ -42,7 +42,7 @@ function getPageViewPort(page: PDFPageProxy, dpi: Dpi | number): PageViewport {
 export async function pdf2png(
   pdf: string | Buffer,
   options: PdfToPngOptions = {},
-): Promise<ReadonlyArray<Jimp>> {
+): Promise<ReadonlyArray<JimpInstance>> {
   const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs')
 
   const opts = {
@@ -63,7 +63,7 @@ export async function pdf2png(
   const canvas = mkCanvas()
 
   // Generate images
-  const images: Buffer[] = []
+  const images: JimpInstance[] = []
   for (let idx = 1; idx <= numPages; idx += 1) {
     const page = await pdfDocument.getPage(idx)
     const viewport = getPageViewPort(page, opts.dpi)
@@ -75,10 +75,11 @@ export async function pdf2png(
     }
     await page.render(renderParameters).promise
     page.cleanup()
-    images.push(canvas.toPng())
+    const imgData = canvas.context.getImageData(0, 0, viewport.width, viewport.height)
+    images.push(Jimp.fromBitmap(imgData) as JimpInstance)
   }
 
   canvas.destroy()
 
-  return Promise.all(images.map((x) => Jimp.read(x)))
+  return images
 }

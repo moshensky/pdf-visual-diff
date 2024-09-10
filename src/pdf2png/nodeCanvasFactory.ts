@@ -3,7 +3,6 @@ import * as assert from 'assert'
 
 export type CanvasAndContext = {
   context: Canvas.CanvasRenderingContext2D
-  toPng: () => Buffer
   set: (width: number, height: number) => void
   destroy: () => void
 }
@@ -13,7 +12,6 @@ export function mkCanvas(): CanvasAndContext {
   let context = canvas.getContext('2d')
   return {
     context,
-    toPng: () => canvas.toBuffer('image/png'),
     set: (width: number, height: number): void => {
       assert.ok(width > 0 && height > 0, 'Invalid canvas size')
       canvas.width = width
