@@ -25,7 +25,7 @@ jobs:
       - name: Run tests
         run: npm run test
       - name: Store snapshots from tests
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: snapshots
