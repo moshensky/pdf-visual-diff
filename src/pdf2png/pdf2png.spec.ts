@@ -17,12 +17,12 @@ describe('pdf2png()', () => {
     const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_scaled_1.png')
     const expectedImage2Path = join(expectedDir, 'two-page_png_per_page_scaled_2.png')
     return pdf2png(twoPage, { dpi: Dpi.High })
-      .then((imgs) =>
-        Promise.all([
+      .then((imgs) => {
+        return Promise.all([
           compareImages(expectedImage1Path, [imgs[0]]),
           compareImages(expectedImage2Path, [imgs[1]]),
-        ]),
-      )
+        ])
+      })
       .then((results) => {
         results.forEach((x) => expect(x.equal).to.be.true)
       })
@@ -32,12 +32,12 @@ describe('pdf2png()', () => {
     const expectedImage1Path = join(expectedDir, 'two-page_png_per_page_1.png')
     const expectedImage2Path = join(expectedDir, 'two-page_png_per_page_2.png')
     return pdf2png(twoPage, { dpi: Dpi.Low })
-      .then((imgs) =>
-        Promise.all([
+      .then((imgs) => {
+        return Promise.all([
           compareImages(expectedImage1Path, [imgs[0]]),
           compareImages(expectedImage2Path, [imgs[1]]),
-        ]),
-      )
+        ])
+      })
       .then((results) => {
         results.forEach((x) => expect(x.equal).to.be.true)
       })
