@@ -18,6 +18,7 @@
     "format:fix": "prettier ./src --write",
     "test": "node --require ts-node/register --test src/**/*.test.ts src/*.test.ts",
     "test:watch": "node --require ts-node/register --test --watch src/**/*.test.ts src/*.test.ts",
+    "test:jest": "npm run tsc -- --noEmit false && NODE_OPTIONS=--experimental-vm-modules jest test/jest.test.js",
     "license-checker": "npx license-checker --production --onlyAllow 'MIT; MIT OR X11; BSD; ISC; Apache-2.0; Unlicense' --excludePackages 'pdf-visual-diff'",
     "update-deps": "npx npm-check-updates --configFileName .ncurc.js"
   },
@@ -56,6 +57,7 @@
     "@types/yargs": "^17.0.33",
     "eslint": "^9.10.0",
     "eslint-plugin-tsdoc": "^0.3.0",
+    "jest": "^29.7.0",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "typedoc": "^0.26.7",
