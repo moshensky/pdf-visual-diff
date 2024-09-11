@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
 import { CommandModule } from 'yargs'
-import fs0 from 'fs'
+import * as fs from 'fs/promises'
 import { askForConfirmation, findImages, mkCurrentSnapshotPath, mkDiffSnapshotPath } from './utils'
-
-const fs = fs0.promises
 
 type Arguments = {
   [x: string]: unknown

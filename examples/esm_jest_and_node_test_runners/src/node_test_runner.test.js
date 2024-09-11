@@ -4,7 +4,6 @@ import { comparePdfToSnapshot } from 'pdf-visual-diff'
 import { pathToPdf, pathToChangedPdf, snapshotDir } from './utils.js'
 
 function mkSnapshotName(testContext) {
-  console.log(testContext.name.split(' ').join('_'))
   return testContext.name.split(' ').join('_')
 }
 

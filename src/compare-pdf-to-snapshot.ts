@@ -1,8 +1,8 @@
-import path from 'path'
+import * as path from 'path'
 import { existsSync, mkdirSync, unlinkSync } from 'fs'
 import { pdf2png } from './pdf2png/pdf2png'
 import { compareImages } from './compare-images'
-import Jimp from 'jimp'
+import { Jimp, JimpInstance } from 'jimp'
 import { PdfToPngOptions } from './types'
 import { writeImages } from './imageUtils'
 
@@ -69,11 +69,11 @@ const colorToNum: Record<HighlightColor, number> = {
 
 const maskImgWithRegions =
   (maskRegions: MaskRegions) =>
-  (images: ReadonlyArray<Jimp>): ReadonlyArray<Jimp> => {
+  (images: ReadonlyArray<JimpInstance>): ReadonlyArray<JimpInstance> => {
     images.forEach((img, idx) => {
       ;(maskRegions(idx + 1) || []).forEach(({ type, x, y, width, height, color }) => {
         if (type === 'rectangle-mask') {
-          img.composite(new Jimp(width, height, colorToNum[color]), x, y)
+          img.composite(new Jimp({ width, height, color: colorToNum[color] }), x, y)
         }
       })
     })

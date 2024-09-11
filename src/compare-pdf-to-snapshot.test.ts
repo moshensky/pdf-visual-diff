@@ -1,4 +1,6 @@
-import { read } from 'jimp'
+import { describe, it } from 'node:test'
+import * as assert from 'node:assert/strict'
+import { Jimp, JimpInstance } from 'jimp'
 import {
   comparePdfToSnapshot,
   snapshotsDirName,
@@ -6,12 +8,10 @@ import {
   RegionMask,
 } from './compare-pdf-to-snapshot'
 import { join } from 'path'
-import { expect } from 'chai'
 import { existsSync, unlinkSync } from 'fs'
 import { compareImages } from './compare-images'
-import fs0 from 'fs'
+import * as fs from 'fs/promises'
 import { Dpi } from './types'
-const fs = fs0.promises
 
 const testDataDir = join(__dirname, './test-data')
 const pdfs = join(testDataDir, 'pdfs')
@@ -28,25 +28,25 @@ describe('comparePdfToSnapshot()', () => {
       unlinkSync(snapshotPath)
     }
     return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName).then((x) => {
-      expect(x).to.be.true
-      expect(existsSync(snapshotPath)).to.be.true
+      assert.strictEqual(x, true)
+      assert.strictEqual(existsSync(snapshotPath), true)
       unlinkSync(snapshotPath)
     })
   })
 
   it('should fail and create diff with new version', () =>
     comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page').then((x) => {
-      expect(x).to.be.false
+      assert.strictEqual(x, false)
       const snapshotDiffPath = join(__dirname, snapshotsDirName, 'two-page.diff.png')
-      expect(existsSync(snapshotDiffPath)).to.eq(true, 'diff is not created')
+      assert.strictEqual(existsSync(snapshotDiffPath), true, 'diff is not created')
       const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page.new.png')
-      expect(existsSync(snapshotNewPath)).to.eq(true, 'new is not created')
+      assert.strictEqual(existsSync(snapshotNewPath), true, 'new is not created')
     }))
 
   describe('should pass', () => {
     it('should pass', () =>
-      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page-success').then(
-        (x) => expect(x).to.be.true,
+      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page-success').then((x) =>
+        assert.strictEqual(x, true),
       ))
 
     const testDataDir = join(__dirname, './test-data')
@@ -63,17 +63,17 @@ describe('comparePdfToSnapshot()', () => {
       options?: CompareOptions,
     ): Promise<void> => {
       return comparePdfToSnapshot(pdf, expectedDir, expectedImageName, options).then((x) => {
-        expect(x).to.be.true
+        assert.strictEqual(x, true)
       })
     }
 
     it('single-page-small.pdf', () => testPdf2png(singlePageSmall, 'single-page-small'))
     it('single-page.pdf', () => testPdf2png(singlePage, 'single-page'))
-    it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview')).timeout(40000)
+    it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview'))
     it('TAMReview.pdf without scaling', () =>
       testPdf2png(tamReview, 'TAMReview_without_scaling', {
         pdf2PngOptions: { dpi: Dpi.Low },
-      })).timeout(40000)
+      }))
     it('two-page.pdf', () => testPdf2png(twoPage, 'two-page'))
     it('two-page.pdf buffer', () => fs.readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
   })
@@ -100,8 +100,8 @@ describe('comparePdfToSnapshot()', () => {
     }
 
     it('should succeed comparing masked pdf', () =>
-      comparePdfToSnapshot(singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts).then(
-        (x) => expect(x).to.be.true,
+      comparePdfToSnapshot(singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts).then((x) =>
+        assert.strictEqual(x, true),
       ))
 
     it('should succeed comparing masked pdf without scaling', () => {
@@ -129,12 +129,12 @@ describe('comparePdfToSnapshot()', () => {
           pdf2PngOptions: { dpi: 72 },
           maskRegions: () => [blueMaskSmall, greenMaskSmall],
         },
-      ).then((x) => expect(x).to.be.true)
+      ).then((x) => assert.strictEqual(x, true))
     })
 
     it('should mask multi page pdf', () =>
-      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-multi-page-pdf', opts).then(
-        (x) => expect(x).to.be.true,
+      comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-multi-page-pdf', opts).then((x) =>
+        assert.strictEqual(x, true),
       ))
 
     it('should have different mask per page', () =>
@@ -149,12 +149,12 @@ describe('comparePdfToSnapshot()', () => {
               return []
           }
         },
-      }).then((x) => expect(x).to.be.true))
+      }).then((x) => assert.strictEqual(x, true)))
 
     it('should mask only second page of the pdf', () =>
       comparePdfToSnapshot(twoPagePdfPath, __dirname, 'mask-only-second-page-of-the-pdf', {
         maskRegions: (page) => (page === 2 ? [blueMask, greenMask] : []),
-      }).then((x) => expect(x).to.be.true))
+      }).then((x) => assert.strictEqual(x, true)))
 
     it('should mask only second page of the pdf and handle undefined masks', () =>
       comparePdfToSnapshot(
@@ -164,7 +164,7 @@ describe('comparePdfToSnapshot()', () => {
         {
           maskRegions: (page) => (page === 2 ? [blueMask, greenMask] : undefined),
         },
-      ).then((x) => expect(x).to.be.true))
+      ).then((x) => assert.strictEqual(x, true)))
 
     it('should create initial masked image', () => {
       const snapshotName = 'initial-rectangle-masks'
@@ -178,11 +178,13 @@ describe('comparePdfToSnapshot()', () => {
         unlinkSync(snapshotPath)
       }
       return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
-        .then((x) => expect(x).to.be.true)
-        .then(() => read(snapshotPath))
+        .then((x) => assert.strictEqual(x, true))
+        .then(() => Jimp.read(snapshotPath))
+        .then((x) => x as JimpInstance)
         .then((img) =>
           compareImages(expectedImagePath, [img], { tolerance: 0 }).then((x) =>
-            expect(x.equal).to.eq(
+            assert.strictEqual(
+              x.equal,
               true,
               'generated initial rectangle masks does not match expected one',
             ),

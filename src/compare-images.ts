@@ -1,4 +1,4 @@
-import Jimp, { read } from 'jimp'
+import { Jimp, diff as jimpDiff, JimpInstance } from 'jimp'
 import { mergeImages } from './imageUtils'
 
 const diffToken = '.diff'
@@ -26,7 +26,7 @@ type CompareKO = {
   equal: false
   diffs: ReadonlyArray<{
     page: number
-    diff: Jimp
+    diff: JimpInstance
   }>
 }
 
@@ -34,17 +34,18 @@ type CompareImagesResult = CompareOK | CompareKO
 
 export const compareImages = async (
   expectedImagePath: string,
-  images: ReadonlyArray<Jimp>,
+  images: ReadonlyArray<JimpInstance>,
   options?: CompareImagesOpts,
 ): Promise<CompareImagesResult> => {
   const { tolerance } = {
     ...defaultOpts,
     ...options,
   }
-  const expectedImg = await read(expectedImagePath)
+  // @ts-expect-error it is a Jimp
+  const expectedImg: JimpInstance = await Jimp.read(expectedImagePath)
   // Multi image comparison not implemented!
   const img = mergeImages(images)
-  const diff = Jimp.diff(expectedImg, img, tolerance)
+  const diff = jimpDiff(expectedImg, img, tolerance)
   if (diff.percent > 0) {
     return {
       equal: false,

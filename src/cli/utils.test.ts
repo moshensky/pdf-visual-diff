@@ -1,16 +1,19 @@
-import { expect } from 'chai'
+import { describe, it } from 'node:test'
+import * as assert from 'node:assert/strict'
 import { mkCurrentSnapshotPath, mkDiffSnapshotPath } from './utils'
 
 const filePath = '/pdf-visual-diff/src/__snapshots__/two-page.new.png'
 
 describe('cli utils', () => {
   it('mkCurrentSnapshotPath()', async () =>
-    expect(mkCurrentSnapshotPath(filePath)).to.equal(
+    assert.strictEqual(
+      mkCurrentSnapshotPath(filePath),
       '/pdf-visual-diff/src/__snapshots__/two-page.png',
     ))
 
   it('mkDiffSnapshotPath()', async () =>
-    expect(mkDiffSnapshotPath(filePath)).to.equal(
+    assert.strictEqual(
+      mkDiffSnapshotPath(filePath),
       '/pdf-visual-diff/src/__snapshots__/two-page.diff.png',
     ))
 })

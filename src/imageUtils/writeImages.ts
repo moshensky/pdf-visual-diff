@@ -1,5 +1,5 @@
-import Jimp from 'jimp'
-import path from 'path'
+import { JimpInstance } from 'jimp'
+import * as path from 'path'
 import { mergeImages } from './mergeImages'
 
 /**
@@ -17,11 +17,11 @@ export const writeImages =
      */
     combinePages = true,
   ) =>
-  (images: ReadonlyArray<Jimp>): Promise<void> => {
+  (images: ReadonlyArray<JimpInstance>): Promise<void> => {
     if (combinePages === true) {
-      return mergeImages(images)
-        .writeAsync(outputImagePath)
-        .then(() => undefined)
+      // @ts-expect-error too smart types
+      const outputImagePath0: `${string}.${string}` = outputImagePath
+      return mergeImages(images).write(outputImagePath0)
     }
 
     const parsedPath = path.parse(outputImagePath)
@@ -29,7 +29,7 @@ export const writeImages =
     const padMaxLen = images.length.toString().length
     return Promise.all(
       images.map((img, idx) =>
-        img.writeAsync(`${partialName}_${String(idx + 1).padStart(padMaxLen, '0')}.png`),
+        img.write(`${partialName}_${String(idx + 1).padStart(padMaxLen, '0')}.png`),
       ),
     ).then(() => undefined)
   }

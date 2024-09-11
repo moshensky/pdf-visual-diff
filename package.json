@@ -7,15 +7,17 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "clean": "rm -rf ./lib ./coverage",
-    "build": "npm run clean && npm run lint && npm run test && npm run tsc -- --noEmit false",
+    "build": "npm run clean && npm run lint && npm run format && npm run test && npm run tsc -- --noEmit false",
     "build:docs": "npx typedoc src/index.ts --treatWarningsAsErrors",
     "tsc": "tsc --noEmit --pretty",
     "tsc:watch": "npm run tsc -- --watch",
-    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+    "lint": "eslint ./src",
     "lint:fix": "npm run lint -- --fix",
-    "format": "prettier --write .eslintrc.js .prettierrc.json tsconfig.json .mocharc.json",
-    "test": "mocha",
-    "test:watch": "npm test -- --watch",
+    "format:other": "prettier --write .eslintrc.js .prettierrc.json tsconfig.json",
+    "format": "prettier ./src --check",
+    "format:fix": "prettier ./src --write",
+    "test": "node --require ts-node/register --test src/**/*.test.ts src/*.test.ts",
+    "test:watch": "node --require ts-node/register --test --watch src/**/*.test.ts src/*.test.ts",
     "license-checker": "npx license-checker --production --onlyAllow 'MIT; MIT OR X11; BSD; ISC; Apache-2.0; Unlicense' --excludePackages 'pdf-visual-diff'",
     "update-deps": "npx npm-check-updates --configFileName .ncurc.js"
   },
@@ -42,28 +44,22 @@
   "dependencies": {
     "canvas": "^2.11.2",
     "glob": "^10.2.1",
-    "jimp": "^0.22.7",
-    "pdfjs-dist": "^3.5.141",
-    "yargs": "^17.7.1"
+    "jimp": "^1.6.0",
+    "pdfjs-dist": "^4.6.82",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.4",
+    "@eslint/js": "^9.10.0",
+    "@types/eslint__js": "^8.42.3",
     "@types/glob": "^8.1.0",
-    "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.13",
-    "@types/yargs": "^17.0.24",
-    "@typescript-eslint/eslint-plugin": "^5.59.0",
-    "@typescript-eslint/parser": "^5.59.0",
-    "assert": "^2.0.0",
-    "chai": "^4.3.7",
-    "eslint": "^8.38.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
+    "@types/yargs": "^17.0.33",
+    "eslint": "^9.10.0",
     "eslint-plugin-tsdoc": "^0.3.0",
-    "mocha": "^10.2.0",
-    "prettier": "^2.8.7",
-    "ts-node": "^10.9.1",
-    "typedoc": "^0.26.6",
-    "typescript": "^5.0.4"
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.26.7",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.5.0"
   }
 }

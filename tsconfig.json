@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "commonjs",
+    "module": "Node16",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "outDir": "./lib",
     "declaration": true,
     "noEmitOnError": false,
@@ -21,7 +21,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": false,
   },
   "include": ["./src/**/*"]
 }
