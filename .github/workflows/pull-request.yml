@@ -36,3 +36,5 @@ jobs:
         run: npm run format
       - name: Make sure docs can be build
         run: npm run build:docs
+      - name: Run jest smoke tests
+        run: npm run test:jest
