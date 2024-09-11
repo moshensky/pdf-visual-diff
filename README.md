@@ -42,7 +42,7 @@ When the function is executed, it has following **side effects**:
 
 Returns a promise that resolves to `true` if the PDF matches the snapshot or if a new snapshot is created, and `false` if the PDF differs from the snapshot.
 
-For further details and configuration options, please refer to the [API Documentation](https://moshensky.github.io/pdf-visual-diff).
+For further details and [configuration options](https://moshensky.github.io/pdf-visual-diff/types/CompareOptions.html), please refer to the [API Documentation](https://moshensky.github.io/pdf-visual-diff).
 
 ## Sample usage
 
