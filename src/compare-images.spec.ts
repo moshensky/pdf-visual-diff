@@ -1,5 +1,6 @@
-import { compareImages, mkDiffPath } from './compare-images'
+import { describe, it } from "node:test"
 import * as assert from 'node:assert/strict'
+import { compareImages, mkDiffPath } from './compare-images'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { Jimp, JimpInstance } from 'jimp'

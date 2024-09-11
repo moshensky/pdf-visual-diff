@@ -1,7 +1,8 @@
+import { describe, it } from "node:test"
+import * as assert from 'node:assert/strict'
 import { join } from 'path'
 import { pdf2png } from './pdf2png'
 import { compareImages } from '../compare-images'
-import * as assert from 'node:assert/strict'
 import { Dpi } from '../types'
 
 const testDataDir = join(__dirname, '../test-data')

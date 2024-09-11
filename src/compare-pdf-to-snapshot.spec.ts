@@ -1,3 +1,5 @@
+import { describe, it } from "node:test"
+import * as assert from 'node:assert/strict'
 import { Jimp, JimpInstance } from 'jimp'
 import {
   comparePdfToSnapshot,
@@ -6,7 +8,6 @@ import {
   RegionMask,
 } from './compare-pdf-to-snapshot'
 import { join } from 'path'
-import * as assert from 'node:assert/strict'
 import { existsSync, unlinkSync } from 'fs'
 import { compareImages } from './compare-images'
 import * as fs from 'fs/promises'
@@ -68,11 +69,11 @@ describe('comparePdfToSnapshot()', () => {
 
     it('single-page-small.pdf', () => testPdf2png(singlePageSmall, 'single-page-small'))
     it('single-page.pdf', () => testPdf2png(singlePage, 'single-page'))
-    it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview')).timeout(40000)
+    it('TAMReview.pdf', () => testPdf2png(tamReview, 'TAMReview'))
     it('TAMReview.pdf without scaling', () =>
       testPdf2png(tamReview, 'TAMReview_without_scaling', {
         pdf2PngOptions: { dpi: Dpi.Low },
-      })).timeout(40000)
+      }))
     it('two-page.pdf', () => testPdf2png(twoPage, 'two-page'))
     it('two-page.pdf buffer', () => fs.readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
   })
