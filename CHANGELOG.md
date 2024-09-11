@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.1 / 2024-09-11
+
+- [PR#68](https://github.com/moshensky/pdf-visual-diff/pull/68): Fix when running in jest context.
+
 ## 0.11.0 / 2024-09-11
 
 - [PR#67](https://github.com/moshensky/pdf-visual-diff/pull/67): Dependencies update. **BREAKING CHANGE**: Minimum supported **Node.js v18**.
