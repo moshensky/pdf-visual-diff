@@ -1,4 +1,7 @@
-# Typescript sample
+# TypeScript Sample
 
-`mkSamplePdf` is a function that uses pdfmake to dynamically create pdfs.
-It has two tests that are using pdf-visual-diff. One test passes, because it's snapshot will match, the other fails.
+`mkSamplePdf` is a function that uses [pdfmake](http://pdfmake.org/) to dynamically create PDFs.
+It has two tests that use `pdf-visual-diff`:
+
+- One asserts that a snapshot matches.
+- The other asserts that it doesn't match.
