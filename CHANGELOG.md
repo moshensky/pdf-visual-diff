@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.11.0 / 2024-09-11
+
+- [PR#67](https://github.com/moshensky/pdf-visual-diff/pull/67): Dependencies update. **BREAKING CHANGE**: Minimum supported **Node.js v18**.
+  Notably, the update of `pdfjs-dist` to **v4** (`^4.6.82`) from v3 introduces significant changes. As a result, this release is a **BREAKING CHANGE**:
+  - Due to the update in `pdfjs-dist`, the minimum supported Node.js version is now 18.
+  - If you were using a version of `pdfjs-dist` lower than [v3.7.107](https://github.com/mozilla/pdf.js/releases/tag/v3.7.107), your snapshots might start to fail due to changes in how fonts are loaded and used in certain circumstances.
+  
+  For the time being, this release has 0 vulnerabilities according to `npm audit`.
+
 ## 0.10.0 / 2024-09-06
 
 - [#58](https://github.com/moshensky/pdf-visual-diff/issues/58): Expose option to set rendering DPI.
