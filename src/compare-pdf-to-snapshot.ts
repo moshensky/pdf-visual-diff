@@ -168,6 +168,11 @@ export function comparePdfToSnapshot(
 
   // If the snapshot doesn't exist
   if (!existsSync(snapshotPath)) {
+    // If we shouldn't generate a snapshot, handle based on failIfSnapshotMissing
+    if (!allowSnapshotCreation) {
+      return Promise.resolve(!failOnMissingSnapshot)
+    }
+
     // Proceed with snapshot generation
     return pdf2png(pdf, pdf2PngOptions)
       .then(maskImgWithRegions(maskRegions))

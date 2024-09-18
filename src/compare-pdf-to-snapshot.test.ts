@@ -193,4 +193,68 @@ describe('comparePdfToSnapshot()', () => {
         .then(() => unlinkSync(snapshotPath))
     })
   })
+
+  describe('when previous snapshot file does not exist', () => {
+    describe('allowSnapshotCreation is true (default)', () => {
+      it('should create new snapshot if missing and failOnMissingSnapshot is false (default', () => {
+        const snapshotName = 'allow-create-snapshot'
+        const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+        if (existsSync(snapshotPath)) {
+          unlinkSync(snapshotPath)
+        }
+        return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName).then((x) => {
+          assert.strictEqual(x, true)
+          assert.strictEqual(existsSync(snapshotPath), true, 'Snapshot should be created')
+          unlinkSync(snapshotPath)
+        })
+      })
+
+      it('should create new snapshot if missing and failOnMissingSnapshot is true', () => {
+        const snapshotName = 'allow-create-snapshot'
+        const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+        if (existsSync(snapshotPath)) {
+          unlinkSync(snapshotPath)
+        }
+        return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+          failOnMissingSnapshot: true,
+        }).then((x) => {
+          assert.strictEqual(x, true)
+          assert.strictEqual(existsSync(snapshotPath), true, 'Snapshot should be created')
+          unlinkSync(snapshotPath)
+        })
+      })
+    })
+
+    describe('allowSnapshotCreation is false', () => {
+      it('should fail if snapshot is missing and failOnMissingSnapshot is true', () => {
+        const snapshotName = 'fail-on-missing-snapshot'
+        const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+        if (existsSync(snapshotPath)) {
+          unlinkSync(snapshotPath)
+        }
+        return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+          allowSnapshotCreation: false,
+          failOnMissingSnapshot: true,
+        }).then((x) => {
+          assert.strictEqual(x, false)
+          assert.strictEqual(existsSync(snapshotPath), false, 'Snapshot should not be created')
+        })
+      })
+
+      it('should pass if snapshot is missing and failOnMissingSnapshot is false (default)', () => {
+        const snapshotName = 'pass-no-create-no-fail'
+        const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+        if (existsSync(snapshotPath)) {
+          unlinkSync(snapshotPath)
+        }
+        return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+          allowSnapshotCreation: false,
+          failOnMissingSnapshot: false,
+        }).then((x) => {
+          assert.strictEqual(x, true)
+          assert.strictEqual(existsSync(snapshotPath), false, 'Snapshot should not be created')
+        })
+      })
+    })
+  })
 })
