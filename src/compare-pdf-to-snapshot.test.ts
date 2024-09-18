@@ -196,7 +196,7 @@ describe('comparePdfToSnapshot()', () => {
 
   describe('when previous snapshot file does not exist', () => {
     describe('allowSnapshotCreation is true (default)', () => {
-      it('should create new snapshot if missing and failOnMissingSnapshot is false (default', () => {
+      it('should create new snapshot if missing and failOnMissingSnapshot is false (default)', () => {
         const snapshotName = 'allow-create-snapshot'
         const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
         if (existsSync(snapshotPath)) {
