@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import * as assert from 'node:assert/strict'
-import { Jimp, JimpInstance } from 'jimp'
+import { Jimp, JimpInstance, diff } from 'jimp'
 import {
   comparePdfToSnapshot,
   snapshotsDirName,
@@ -191,6 +191,24 @@ describe('comparePdfToSnapshot()', () => {
           ),
         )
         .then(() => unlinkSync(snapshotPath))
+    })
+
+    // https://github.com/moshensky/pdf-visual-diff/issues/71
+    it('should apply mask at correct positions if doing multiple PDF comparisons in a single spec file', () => {
+      const snapshotName1 = 'multiple-comparison-with-mask-first'
+      const snapshotName2 = 'multiple-comparison-with-mask-second'
+      const snapshotPath1 = join(__dirname, snapshotsDirName, snapshotName1 + '.png')
+      const snapshotPath2 = join(__dirname, snapshotsDirName, snapshotName2 + '.png')
+
+      return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName1, opts)
+        .then((x) => assert.strictEqual(x, true))
+        .then(() => comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName2, opts))
+        .then((x) => assert.strictEqual(x, true))
+        .then(() => Promise.all([Jimp.read(snapshotPath1), Jimp.read(snapshotPath2)]))
+        .then(([img1, img2]) => {
+          const diffResult = diff(img1, img2)
+          assert.equal(diffResult.percent, 0)
+        })
     })
   })
 })
