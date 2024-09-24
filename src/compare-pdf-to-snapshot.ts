@@ -150,53 +150,64 @@ export function comparePdfToSnapshot(
   pdf: string | Buffer,
   snapshotDir: string,
   snapshotName: string,
-  options?: CompareOptions,
+  options?: CompareOptions
 ): Promise<boolean> {
   const {
-    maskRegions = () => [],
-    pdf2PngOptions,
-    allowSnapshotCreation = true,
-    failOnMissingSnapshot = false,
-    ...restOpts
-  } = options || {}
-  const dir = path.join(snapshotDir, snapshotsDirName)
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true })
+      maskRegions = () => [],
+      pdf2PngOptions,
+      allowSnapshotCreation = true,
+      failOnMissingSnapshot = false,
+      ...restOpts
+  } = options || {};
+  const snapshotDirectory = path.join(snapshotDir, snapshotsDirName);
+  const snapshotPath = path.join(snapshotDirectory, snapshotName + '.png');
+  const diffSnapshotPath = path.join(snapshotDirectory, snapshotName + '.diff.png');
+  const newSnapshotPath = path.join(snapshotDirectory, snapshotName + '.new.png');
+  
+  // create the snapshot directory if it doesn't exist
+  if (!existsSync(snapshotDirectory)) {
+    mkdirSync(snapshotDirectory, { recursive: true });
+  }
+  
+  const diffExists = existsSync(diffSnapshotPath);
+  const snapshotMissing = !existsSync(snapshotPath);
+
+  // the snapshot is missing and we don't allow creating them so exit early (no comparison needed)
+  if (snapshotMissing && !allowSnapshotCreation) {
+    return Promise.resolve(failOnMissingSnapshot);
   }
 
-  const snapshotPath = path.join(dir, snapshotName + '.png')
-
-  // If the snapshot doesn't exist
-  if (!existsSync(snapshotPath)) {
-    // If we shouldn't generate a snapshot, handle based on failIfSnapshotMissing
-    if (!allowSnapshotCreation) {
-      return Promise.resolve(!failOnMissingSnapshot)
-    }
-
-    // Proceed with snapshot generation
+  // the snapshot is missing but allow creation is true, thus create one and return value of `failOnMissingSnapshot`
+  if (snapshotMissing && allowSnapshotCreation) {
     return pdf2png(pdf, pdf2PngOptions)
       .then(maskImgWithRegions(maskRegions))
       .then(writeImages(snapshotPath))
-      .then(() => true)
+      .then(() => failOnMissingSnapshot);
   }
 
-  // If the snapshot exists, perform comparison
+  // the snapshot exists so do a comparison and conditionally write .new and .diff images
   return pdf2png(pdf, pdf2PngOptions)
     .then(maskImgWithRegions(maskRegions))
-    .then((images) =>
-      compareImages(snapshotPath, images, restOpts).then((result) => {
-        const diffSnapshotPath = path.join(dir, snapshotName + '.diff.png')
-        if (result.equal) {
-          if (existsSync(diffSnapshotPath)) {
-            unlinkSync(diffSnapshotPath)
-          }
-          return true
+    .then(images =>
+      compareImages(snapshotPath, images, restOpts).then(async result => {
+        const comparisonPassed = result && result.equal;
+
+        // remove existing diffs if the comparison passes
+        if (diffExists && comparisonPassed) {
+          unlinkSync(diffSnapshotPath);
         }
 
-        const newSnapshotPath = path.join(dir, snapshotName + '.new.png')
-        return writeImages(newSnapshotPath)(images)
-          .then(() => writeImages(diffSnapshotPath)(result.diffs.map((x) => x.diff)))
-          .then(() => false)
-      }),
-    )
+        // always produce a diff regardless of the value of allowSnapshotCreation
+        if (!comparisonPassed) {
+          await writeImages(diffSnapshotPath)(result.diffs.map(x => x.diff));
+        }
+
+        // if the comparison failed and we allow snapshot creation, write the new snapshot
+        if (allowSnapshotCreation && !comparisonPassed) {
+          await writeImages(newSnapshotPath)(images);
+        }
+
+        return Promise.resolve(comparisonPassed);
+      })
+    );
 }
