@@ -101,12 +101,6 @@ export type CompareOptions = {
   /** {@inheritDoc PdfToPngOptions} */
   pdf2PngOptions?: PdfToPngOptions
   /**
-   * Whether to allow creating a snapshot if it's missing.
-   *
-   * @defaultValue true
-   */
-  allowSnapshotCreation?: boolean
-  /**
    * Whether a missing snapshot should cause the comparison to fail.
    *
    * @defaultValue false
@@ -117,18 +111,15 @@ export type CompareOptions = {
 export const snapshotsDirName = '__snapshots__'
 
 /**
- * Compares a PDF to a persisted snapshot. The behavior when a snapshot does not
- * exist can be controlled via the `allowSnapshotCreation` and `failOnMissingSnapshot` options.
+ * Compares a PDF to a persisted snapshot, with behavior for handling missing snapshots
+ * controlled by the `failOnMissingSnapshot` option.
  *
  * @remarks
- * When the function is executed, it has the following **side effects**:
- * - If a previous snapshot file does not exist:
- *   - If `allowSnapshotCreation` is `true` (default), the PDF is converted to an image,
- *     saved as a snapshot, and the function returns `true`.
- *   - If `allowSnapshotCreation` is `false` and `failOnMissingSnapshot` is `true`,
- *     the function returns `false` without generating a new snapshot.
- *   - If `allowSnapshotCreation` is `false` and `failOnMissingSnapshot` is `false`
- *     (default), the function returns `true` without generating a new snapshot.
+ * The function has the following **side effects**:
+ * - If no snapshot exists:
+ *   - If `failOnMissingSnapshot` is `false` (default), the PDF is converted to an image,
+ *     saved as a new snapshot, and the function returns `true`.
+ *   - If `failOnMissingSnapshot` is `true`, the function returns `false` without creating a new snapshot.
  * - If a snapshot exists, the PDF is converted to an image and compared to the snapshot:
  *   - If they differ, the function returns `false` and creates two additional images
  *     next to the snapshot: one with the suffix `new` (the current view of the PDF as an image)
@@ -143,8 +134,8 @@ export const snapshotsDirName = '__snapshots__'
  *
  * @returns
  * A promise that resolves to `true` if the PDF matches the snapshot or if the behavior
- * for a missing snapshot is configured to allow it. Returns `false` if the PDF differs
- * from the snapshot or if `failOnMissingSnapshot` is `true` and the snapshot is missing.
+ * allows for missing snapshots. Resolves to `false` if the PDF differs from the snapshot
+ * or if `failOnMissingSnapshot` is `true` and no snapshot exists.
  */
 export function comparePdfToSnapshot(
   pdf: string | Buffer,
@@ -155,7 +146,6 @@ export function comparePdfToSnapshot(
   const {
     maskRegions = () => [],
     pdf2PngOptions,
-    allowSnapshotCreation = true,
     failOnMissingSnapshot = false,
     ...restOpts
   } = options || {}
@@ -168,9 +158,9 @@ export function comparePdfToSnapshot(
 
   // If the snapshot doesn't exist
   if (!existsSync(snapshotPath)) {
-    // If we shouldn't generate a snapshot, handle based on failIfSnapshotMissing
-    if (!allowSnapshotCreation) {
-      return Promise.resolve(!failOnMissingSnapshot)
+    // If we shouldn't generate a snapshot fail.
+    if (failOnMissingSnapshot) {
+      return Promise.resolve(false)
     }
 
     // Proceed with snapshot generation
