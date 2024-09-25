@@ -214,7 +214,9 @@ describe('comparePdfToSnapshot()', () => {
       if (existsSync(snapshotPath)) {
         unlinkSync(snapshotPath)
       }
-      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName).then((x) => {
+      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+        failOnMissingSnapshot: false,
+      }).then((x) => {
         assert.strictEqual(x, true)
         assert.strictEqual(existsSync(snapshotPath), true, 'Snapshot should be created')
         unlinkSync(snapshotPath)
