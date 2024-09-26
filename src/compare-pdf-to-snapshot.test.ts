@@ -193,4 +193,48 @@ describe('comparePdfToSnapshot()', () => {
         .then(() => unlinkSync(snapshotPath))
     })
   })
+
+  describe('when reference snapshot does not exist', () => {
+    it('should be created when `failOnMissingSnapshot` is not set', () => {
+      const snapshotName = 'allow-create-snapshot-when-failOnMissingSnapshot-is-not-set'
+      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      if (existsSync(snapshotPath)) {
+        unlinkSync(snapshotPath)
+      }
+      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName).then((x) => {
+        assert.strictEqual(x, true)
+        assert.strictEqual(existsSync(snapshotPath), true, 'Snapshot should be created')
+        unlinkSync(snapshotPath)
+      })
+    })
+
+    it('should be created when `failOnMissingSnapshot` is set to `false`', () => {
+      const snapshotName = 'allow-create-snapshot-when-failOnMissingSnapshot-is-set-to-false'
+      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      if (existsSync(snapshotPath)) {
+        unlinkSync(snapshotPath)
+      }
+      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+        failOnMissingSnapshot: false,
+      }).then((x) => {
+        assert.strictEqual(x, true)
+        assert.strictEqual(existsSync(snapshotPath), true, 'Snapshot should be created')
+        unlinkSync(snapshotPath)
+      })
+    })
+
+    it('should not be created and return `false` when `failOnMissingSnapshot` is set to `true`', () => {
+      const snapshotName = 'fail-on-missing-snapshot-when-failOnMissingSnapshot-is-set-to-true'
+      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      if (existsSync(snapshotPath)) {
+        unlinkSync(snapshotPath)
+      }
+      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+        failOnMissingSnapshot: true,
+      }).then((x) => {
+        assert.strictEqual(x, false)
+        assert.strictEqual(existsSync(snapshotPath), false, 'Snapshot should not be created')
+      })
+    })
+  })
 })
