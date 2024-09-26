@@ -1,8 +1,7 @@
 import { describe, it } from 'node:test'
 import * as assert from 'node:assert/strict'
 import { join } from 'node:path'
-import { existsSync, unlinkSync } from 'node:fs'
-import { unlink, readFile } from 'node:fs/promises'
+import { access, unlink, readFile } from 'node:fs/promises'
 import { Jimp, JimpInstance } from 'jimp'
 import {
   comparePdfToSnapshot,
@@ -28,28 +27,37 @@ async function removeIfExists(filePath: string): Promise<void> {
   }
 }
 
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath)
+    return true
+  } catch {
+    return false
+  }
+}
+
 describe('comparePdfToSnapshot()', () => {
-  it('should create new snapshot, when one does not exists', () => {
+  it('should create new snapshot, when one does not exists', async () => {
     const snapshotName = 'single-page-small'
-    const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
-    if (existsSync(snapshotPath)) {
-      unlinkSync(snapshotPath)
-    }
-    return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName).then((x) => {
-      assert.strictEqual(x, true)
-      assert.strictEqual(existsSync(snapshotPath), true)
-      unlinkSync(snapshotPath)
-    })
+    const snapshotPath = join(__dirname, snapshotsDirName, `${snapshotName}.png`)
+
+    await removeIfExists(snapshotPath)
+
+    const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName)
+    assert.strictEqual(isEqual, true)
+    assert.strictEqual(await fileExists(snapshotPath), true)
+    await removeIfExists(snapshotPath)
   })
 
-  it('should fail and create diff with new version', () =>
-    comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page').then((x) => {
-      assert.strictEqual(x, false)
-      const snapshotDiffPath = join(__dirname, snapshotsDirName, 'two-page.diff.png')
-      assert.strictEqual(existsSync(snapshotDiffPath), true, 'diff is not created')
-      const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page.new.png')
-      assert.strictEqual(existsSync(snapshotNewPath), true, 'new is not created')
-    }))
+  it('should fail and create diff with new version', async () => {
+    const isEqual = await comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page')
+    assert.strictEqual(isEqual, false)
+
+    const snapshotDiffPath = join(__dirname, snapshotsDirName, 'two-page.diff.png')
+    assert.strictEqual(await fileExists(snapshotDiffPath), true, 'diff is not created')
+    const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page.new.png')
+    assert.strictEqual(await fileExists(snapshotNewPath), true, 'new is not created')
+  })
 
   it('should remove diff and new snapshots when matches with reference snapshot', async () => {
     const snapshotName = 'should-remove-diff-and-new'
@@ -64,8 +72,12 @@ describe('comparePdfToSnapshot()', () => {
 
     const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName)
     assert.strictEqual(isEqual, true)
-    assert.strictEqual(existsSync(snapshotPathDiff), false, 'Snapshot diff should not exists.')
-    assert.strictEqual(existsSync(snapshotPathNew), false, 'Snapshot new should not exists.')
+    assert.strictEqual(
+      await fileExists(snapshotPathDiff),
+      false,
+      'Snapshot diff should not exists.',
+    )
+    assert.strictEqual(await fileExists(snapshotPathNew), false, 'Snapshot new should not exists.')
   })
 
   describe('should pass', () => {
@@ -191,7 +203,7 @@ describe('comparePdfToSnapshot()', () => {
         },
       ).then((x) => assert.strictEqual(x, true)))
 
-    it('should create initial masked image', () => {
+    it('should create initial masked image', async () => {
       const snapshotName = 'initial-rectangle-masks'
       const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
       const expectedImagePath = join(
@@ -199,67 +211,54 @@ describe('comparePdfToSnapshot()', () => {
         './test-data',
         'expected-initial-rectangle-masks.png',
       )
-      if (existsSync(snapshotPath)) {
-        unlinkSync(snapshotPath)
-      }
-      return comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
-        .then((x) => assert.strictEqual(x, true))
-        .then(() => Jimp.read(snapshotPath))
-        .then((x) => x as JimpInstance)
-        .then((img) =>
-          compareImages(expectedImagePath, [img], { tolerance: 0 }).then((x) =>
-            assert.strictEqual(
-              x.equal,
-              true,
-              'generated initial rectangle masks does not match expected one',
-            ),
-          ),
-        )
-        .then(() => unlinkSync(snapshotPath))
+      await removeIfExists(snapshotPath)
+
+      const isEqual = await comparePdfToSnapshot(singlePagePdfPath, __dirname, snapshotName, opts)
+      assert.strictEqual(isEqual, true)
+
+      const img = (await Jimp.read(snapshotPath)) as JimpInstance
+      const { equal } = await compareImages(expectedImagePath, [img], { tolerance: 0 })
+      assert.strictEqual(equal, true, 'Rectangle masks does not match expected one')
+
+      await removeIfExists(snapshotPath)
     })
   })
 
   describe('when reference snapshot does not exist', () => {
-    it('should be created when `failOnMissingSnapshot` is not set', () => {
+    it('should be created when `failOnMissingSnapshot` is not set', async () => {
       const snapshotName = 'allow-create-snapshot-when-failOnMissingSnapshot-is-not-set'
       const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
-      if (existsSync(snapshotPath)) {
-        unlinkSync(snapshotPath)
-      }
-      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName).then((x) => {
-        assert.strictEqual(x, true)
-        assert.strictEqual(existsSync(snapshotPath), true, 'Snapshot should be created')
-        unlinkSync(snapshotPath)
-      })
+      await removeIfExists(snapshotPath)
+
+      const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName)
+      assert.strictEqual(isEqual, true)
+      assert.strictEqual(await fileExists(snapshotPath), true, 'Snapshot should be created')
+      removeIfExists(snapshotPath)
     })
 
-    it('should be created when `failOnMissingSnapshot` is set to `false`', () => {
+    it('should be created when `failOnMissingSnapshot` is set to `false`', async () => {
       const snapshotName = 'allow-create-snapshot-when-failOnMissingSnapshot-is-set-to-false'
       const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
-      if (existsSync(snapshotPath)) {
-        unlinkSync(snapshotPath)
-      }
-      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+      await removeIfExists(snapshotPath)
+
+      const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
         failOnMissingSnapshot: false,
-      }).then((x) => {
-        assert.strictEqual(x, true)
-        assert.strictEqual(existsSync(snapshotPath), true, 'Snapshot should be created')
-        unlinkSync(snapshotPath)
       })
+      assert.strictEqual(isEqual, true)
+      assert.strictEqual(await fileExists(snapshotPath), true, 'Snapshot should be created')
+      await removeIfExists(snapshotPath)
     })
 
-    it('should not be created and return `false` when `failOnMissingSnapshot` is set to `true`', () => {
+    it('should not be created and return `false` when `failOnMissingSnapshot` is set to `true`', async () => {
       const snapshotName = 'fail-on-missing-snapshot-when-failOnMissingSnapshot-is-set-to-true'
       const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
-      if (existsSync(snapshotPath)) {
-        unlinkSync(snapshotPath)
-      }
-      return comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
+      await removeIfExists(snapshotPath)
+
+      const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
         failOnMissingSnapshot: true,
-      }).then((x) => {
-        assert.strictEqual(x, false)
-        assert.strictEqual(existsSync(snapshotPath), false, 'Snapshot should not be created')
       })
+      assert.strictEqual(isEqual, false)
+      assert.strictEqual(await fileExists(snapshotPath), false, 'Snapshot should not be created')
     })
   })
 })
