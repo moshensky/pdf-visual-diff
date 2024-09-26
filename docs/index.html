@@ -2,18 +2,26 @@
 <a href="https://github.com/prettier/prettier" target="_blank" class="external"><img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg" alt="code style: prettier"></a>
 <img src="https://github.com/moshensky/pdf-visual-diff/workflows/Pull%20Request%20CI/CD/badge.svg?branch=master" alt="Pull Request CI/CD"></p>
 <p><code>pdf-visual-diff</code> is a library for testing visual regressions in PDFs. It uses <a href="https://github.com/mozilla/pdf.js" target="_blank" class="external">pdf.js</a> to convert PDFs into PNGs and <a href="https://github.com/oliver-moran/jimp" target="_blank" class="external">jimp</a> for image comparisons.</p>
+<blockquote>
+<p><a href="https://moshensky.github.io/pdf-visual-diff" target="_blank" class="external">API Documentation</a></p>
+</blockquote>
 <a id="md:installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#md:installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>This library depends on <code>canvas</code> package. Please refer to the <a href="https://github.com/Automattic/node-canvas" target="_blank" class="external">canvas documentation</a> for any additional installation steps.</p>
 <pre><code class="sh"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-3">-D</span><span class="hl-1"> </span><span class="hl-2">pdf-visual-diff</span>
 </code><button type="button">Copy</button></pre>
 
-<a id="md:description" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Description<a href="#md:description" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>This package exports a single function, <a href="https://moshensky.github.io/pdf-visual-diff/functions/comparePdfToSnapshot.html" target="_blank" class="external">comparePdfToSnapshot</a>, with the following signature:</p>
+<a id="md:description" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Description<a href="#md:description" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>This package exports <a href="https://moshensky.github.io/pdf-visual-diff/functions/comparePdfToSnapshot.html" target="_blank" class="external">comparePdfToSnapshot</a> function, with the following signature:</p>
 <pre><code class="ts"><span class="hl-3">function</span><span class="hl-1"> </span><span class="hl-0">comparePdfToSnapshot</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-4">pdf</span><span class="hl-1">: </span><span class="hl-5">string</span><span class="hl-1"> | </span><span class="hl-5">Buffer</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">snapshotDir</span><span class="hl-1">: </span><span class="hl-5">string</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">snapshotName</span><span class="hl-1">: </span><span class="hl-5">string</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">options</span><span class="hl-1">?: </span><span class="hl-5">CompareOptions</span><br/><span class="hl-1">): </span><span class="hl-5">Promise</span><span class="hl-1">&lt;</span><span class="hl-5">boolean</span><span class="hl-1">&gt;</span>
 </code><button type="button">Copy</button></pre>
 
-<p>It compares a PDF to a persisted snapshot. If a snapshot does not exists, one is created.
-When the function is executed, it has following <strong>side effects</strong>:</p>
+<p>Compares a PDF to a persisted snapshot, with behavior for handling missing snapshots controlled by the <code>failOnMissingSnapshot</code> option.</p>
+<p>The function has the following <strong>side effects</strong>:</p>
 <ul>
-<li>If a previous snapshot file does not exist, the PDF is converted to an image, saved as a snapshot, and the function returns <code>true</code>.</li>
+<li>If no snapshot exists:
+<ul>
+<li>If <code>failOnMissingSnapshot</code> is <code>false</code> (default), the PDF is converted to an image, saved as a new snapshot, and the function returns <code>true</code>.</li>
+<li>If <code>failOnMissingSnapshot</code> is <code>true</code>, the function returns <code>false</code> without creating a new snapshot.</li>
+</ul>
+</li>
 <li>If a snapshot exists, the PDF is converted to an image and compared to the snapshot:
 <ul>
 <li>If they differ, the function returns <code>false</code> and creates two additional images next to the snapshot: one with the suffix <code>new</code> (the current view of the PDF as an image) and one with the suffix <code>diff</code> (showing the difference between the snapshot and the <code>new</code> image).</li>
@@ -21,7 +29,7 @@ When the function is executed, it has following <strong>side effects</strong>:</
 </ul>
 </li>
 </ul>
-<p>Returns a promise that resolves to <code>true</code> if the PDF matches the snapshot or if a new snapshot is created, and <code>false</code> if the PDF differs from the snapshot.</p>
+<p>Returns a promise that resolves to <code>true</code> if the PDF matches the snapshot or if the behavior for a missing snapshot is configured to allow it. Returns <code>false</code> if the PDF differs from the snapshot or if <code>failOnMissingSnapshot</code> is <code>true</code> and the snapshot is missing.</p>
 <p>For further details and <a href="https://moshensky.github.io/pdf-visual-diff/types/CompareOptions.html" target="_blank" class="external">configuration options</a>, please refer to the <a href="https://moshensky.github.io/pdf-visual-diff" target="_blank" class="external">API Documentation</a>.</p>
 <a id="md:sample-usage" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Sample usage<a href="#md:sample-usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><blockquote>
 <p><strong>Note:</strong> You can find sample projects in the <a href="https://github.com/moshensky/pdf-visual-diff/tree/master/examples" target="_blank" class="external">examples</a> folder.</p>
