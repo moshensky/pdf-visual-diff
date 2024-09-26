@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0 / 2024-09-26
+
+### :tada: Enhancements
+
+- [PR#70](https://github.com/moshensky/pdf-visual-diff/pull/70): feat: add failOnMissingSnapshot to `comparePdfToSnapshot` options. If no snapshot exists:
+  - If `failOnMissingSnapshot` is `false` (default), the PDF is converted to an image,
+      saved as a new snapshot, and the function returns `true`.
+  - If `failOnMissingSnapshot` is `true`, the function returns `false` without creating a new snapshot.
+
 ## 0.11.1 / 2024-09-11
 
 - [PR#68](https://github.com/moshensky/pdf-visual-diff/pull/68): Fix when running in jest context.
