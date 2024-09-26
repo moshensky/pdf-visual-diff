@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 / 2024-09-26
+## 0.12.0 / 2024-09-26
 
 ### :tada: Enhancements
 
