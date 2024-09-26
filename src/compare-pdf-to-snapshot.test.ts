@@ -20,7 +20,7 @@ const singlePageSmallPdfPath = join(pdfs, 'single-page-small.pdf')
 const singlePagePdfPath = join(pdfs, 'single-page.pdf')
 const twoPagePdfPath = join(pdfs, 'two-page.pdf')
 
-export async function removeIfExists(filePath: string): Promise<void> {
+async function removeIfExists(filePath: string): Promise<void> {
   try {
     await unlink(filePath)
   } catch {
@@ -68,7 +68,7 @@ describe('comparePdfToSnapshot()', () => {
     assert.strictEqual(existsSync(snapshotPathNew), false, 'Snapshot new should not exists.')
   })
 
-  describe.skip('should pass', () => {
+  describe('should pass', () => {
     it('should pass', () =>
       comparePdfToSnapshot(twoPagePdfPath, __dirname, 'two-page-success').then((x) =>
         assert.strictEqual(x, true),
@@ -103,7 +103,7 @@ describe('comparePdfToSnapshot()', () => {
     it('two-page.pdf buffer', () => readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
   })
 
-  describe.skip('maskRegions', () => {
+  describe('maskRegions', () => {
     const blueMask: RegionMask = {
       type: 'rectangle-mask',
       x: 50,
@@ -219,7 +219,7 @@ describe('comparePdfToSnapshot()', () => {
     })
   })
 
-  describe.skip('when reference snapshot does not exist', () => {
+  describe('when reference snapshot does not exist', () => {
     it('should be created when `failOnMissingSnapshot` is not set', () => {
       const snapshotName = 'allow-create-snapshot-when-failOnMissingSnapshot-is-not-set'
       const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
