@@ -1,5 +1,11 @@
 # Changelog
 
+## UNRELEASED
+
+### 🐛 Bug Fix
+
+- [PR#76](https://github.com/moshensky/pdf-visual-diff/pull/76) fix: remove new snapshot when existing snapshot matches
+
 ## 0.12.0 / 2024-09-26
 
 ### :tada: Enhancements

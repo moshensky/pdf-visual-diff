@@ -176,14 +176,19 @@ export function comparePdfToSnapshot(
     .then((images) =>
       compareImages(snapshotPath, images, restOpts).then((result) => {
         const diffSnapshotPath = path.join(dir, snapshotName + '.diff.png')
+        const newSnapshotPath = path.join(dir, snapshotName + '.new.png')
         if (result.equal) {
           if (existsSync(diffSnapshotPath)) {
             unlinkSync(diffSnapshotPath)
           }
+
+          if (existsSync(newSnapshotPath)) {
+            unlinkSync(newSnapshotPath)
+          }
+
           return true
         }
 
-        const newSnapshotPath = path.join(dir, snapshotName + '.new.png')
         return writeImages(newSnapshotPath)(images)
           .then(() => writeImages(diffSnapshotPath)(result.diffs.map((x) => x.diff)))
           .then(() => false)
