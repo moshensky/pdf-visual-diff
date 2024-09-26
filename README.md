@@ -6,6 +6,8 @@
 
 `pdf-visual-diff` is a library for testing visual regressions in PDFs. It uses [pdf.js](https://github.com/mozilla/pdf.js) to convert PDFs into PNGs and [jimp](https://github.com/oliver-moran/jimp) for image comparisons.
 
+> [API Documentation](https://moshensky.github.io/pdf-visual-diff)
+
 ## Installation
 
 This library depends on `canvas` package. Please refer to the [canvas documentation](https://github.com/Automattic/node-canvas) for any additional installation steps.
@@ -21,7 +23,7 @@ npm install -D pdf-visual-diff
 
 ## Description
 
-This package exports a single function, [comparePdfToSnapshot](https://moshensky.github.io/pdf-visual-diff/functions/comparePdfToSnapshot.html), with the following signature:
+This package exports [comparePdfToSnapshot](https://moshensky.github.io/pdf-visual-diff/functions/comparePdfToSnapshot.html) function, with the following signature:
 
 ```ts
 function comparePdfToSnapshot(
@@ -32,15 +34,18 @@ function comparePdfToSnapshot(
 ): Promise<boolean>
 ```
 
-It compares a PDF to a persisted snapshot. If a snapshot does not exists, one is created.
-When the function is executed, it has following **side effects**:
+Compares a PDF to a persisted snapshot, with behavior for handling missing snapshots controlled by the `failOnMissingSnapshot` option.
 
-- If a previous snapshot file does not exist, the PDF is converted to an image, saved as a snapshot, and the function returns `true`.
+The function has the following **side effects**:
+
+- If no snapshot exists:
+  - If `failOnMissingSnapshot` is `false` (default), the PDF is converted to an image, saved as a new snapshot, and the function returns `true`.
+  - If `failOnMissingSnapshot` is `true`, the function returns `false` without creating a new snapshot.
 - If a snapshot exists, the PDF is converted to an image and compared to the snapshot:
   - If they differ, the function returns `false` and creates two additional images next to the snapshot: one with the suffix `new` (the current view of the PDF as an image) and one with the suffix `diff` (showing the difference between the snapshot and the `new` image).
   - If they are equal, the function returns `true`. If `new` and `diff` versions are present, they are deleted.
 
-Returns a promise that resolves to `true` if the PDF matches the snapshot or if a new snapshot is created, and `false` if the PDF differs from the snapshot.
+Returns a promise that resolves to `true` if the PDF matches the snapshot or if the behavior for a missing snapshot is configured to allow it. Returns `false` if the PDF differs from the snapshot or if `failOnMissingSnapshot` is `true` and the snapshot is missing.
 
 For further details and [configuration options](https://moshensky.github.io/pdf-visual-diff/types/CompareOptions.html), please refer to the [API Documentation](https://moshensky.github.io/pdf-visual-diff).
 
