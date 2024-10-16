@@ -5,7 +5,7 @@ import { access, unlink, readFile } from 'node:fs/promises'
 import { Jimp, JimpInstance } from 'jimp'
 import {
   comparePdfToSnapshot,
-  snapshotsDirName,
+  SNAPSHOTS_DIR_NAME,
   CompareOptions,
   RegionMask,
 } from './compare-pdf-to-snapshot'
@@ -39,7 +39,7 @@ async function fileExists(filePath: string): Promise<boolean> {
 describe('comparePdfToSnapshot()', () => {
   it('should create new snapshot, when one does not exists', async () => {
     const snapshotName = 'single-page-small'
-    const snapshotPath = join(__dirname, snapshotsDirName, `${snapshotName}.png`)
+    const snapshotPath = join(__dirname, SNAPSHOTS_DIR_NAME, `${snapshotName}.png`)
 
     await removeIfExists(snapshotPath)
 
@@ -53,15 +53,15 @@ describe('comparePdfToSnapshot()', () => {
     const isEqual = await comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page')
     assert.strictEqual(isEqual, false)
 
-    const snapshotDiffPath = join(__dirname, snapshotsDirName, 'two-page.diff.png')
+    const snapshotDiffPath = join(__dirname, SNAPSHOTS_DIR_NAME, 'two-page.diff.png')
     assert.strictEqual(await fileExists(snapshotDiffPath), true, 'diff is not created')
-    const snapshotNewPath = join(__dirname, snapshotsDirName, 'two-page.new.png')
+    const snapshotNewPath = join(__dirname, SNAPSHOTS_DIR_NAME, 'two-page.new.png')
     assert.strictEqual(await fileExists(snapshotNewPath), true, 'new is not created')
   })
 
   it('should remove diff and new snapshots when matches with reference snapshot', async () => {
     const snapshotName = 'should-remove-diff-and-new'
-    const snapshotBase = join(__dirname, snapshotsDirName, snapshotName)
+    const snapshotBase = join(__dirname, SNAPSHOTS_DIR_NAME, snapshotName)
     const snapshotPathDiff: `${string}.${string}` = `${snapshotBase}.diff.png`
     const snapshotPathNew: `${string}.${string}` = `${snapshotBase}.new.png`
 
@@ -205,7 +205,7 @@ describe('comparePdfToSnapshot()', () => {
 
     it('should create initial masked image', async () => {
       const snapshotName = 'initial-rectangle-masks'
-      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      const snapshotPath = join(__dirname, SNAPSHOTS_DIR_NAME, snapshotName + '.png')
       const expectedImagePath = join(
         __dirname,
         './test-data',
@@ -227,7 +227,7 @@ describe('comparePdfToSnapshot()', () => {
   describe('when reference snapshot does not exist', () => {
     it('should be created when `failOnMissingSnapshot` is not set', async () => {
       const snapshotName = 'allow-create-snapshot-when-failOnMissingSnapshot-is-not-set'
-      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      const snapshotPath = join(__dirname, SNAPSHOTS_DIR_NAME, snapshotName + '.png')
       await removeIfExists(snapshotPath)
 
       const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName)
@@ -238,7 +238,7 @@ describe('comparePdfToSnapshot()', () => {
 
     it('should be created when `failOnMissingSnapshot` is set to `false`', async () => {
       const snapshotName = 'allow-create-snapshot-when-failOnMissingSnapshot-is-set-to-false'
-      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      const snapshotPath = join(__dirname, SNAPSHOTS_DIR_NAME, snapshotName + '.png')
       await removeIfExists(snapshotPath)
 
       const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
@@ -251,7 +251,7 @@ describe('comparePdfToSnapshot()', () => {
 
     it('should not be created and return `false` when `failOnMissingSnapshot` is set to `true`', async () => {
       const snapshotName = 'fail-on-missing-snapshot-when-failOnMissingSnapshot-is-set-to-true'
-      const snapshotPath = join(__dirname, snapshotsDirName, snapshotName + '.png')
+      const snapshotPath = join(__dirname, SNAPSHOTS_DIR_NAME, snapshotName + '.png')
       await removeIfExists(snapshotPath)
 
       const isEqual = await comparePdfToSnapshot(singlePageSmallPdfPath, __dirname, snapshotName, {
