@@ -1,8 +1,21 @@
 # Changelog
 
-## UNRELEASED
+## 0.13.0 / 2024-11-27
 
 ### 🐛 Bug Fix
+
+- [PR#82](https://github.com/moshensky/pdf-visual-diff/pull/82) fix: error due to pdfjs-dist update and fix new vulnerabilities by updating dependecies
+  [pdfjs-dist v4.7.76](https://github.com/mozilla/pdf.js/releases/tag/v4.7.76) introduced changes to CanvasFactory that fail with:
+
+  TypeError: Image or Canvas expected
+
+  ```sh
+      at drawImageAtIntegerCoords (node_modules/pdfjs-dist/legacy/build/webpack:/pdf.js/src/display/canvas.js:261:9)
+      at CanvasGraphics.paintInlineImageXObject (node_modules/pdfjs-dist/legacy/build/webpack:/pdf.js/src/display/canvas.js:2990:5)
+      at CanvasGraphics.apply (node_modules/pdfjs-dist/legacy/build/webpack:/pdf.js/src/display/canvas.js:2879:10)
+      at CanvasGraphics.executeOperatorList (node_modules/pdfjs-dist/legacy/build/webpack:/pdf.js/src/display/canvas.js:967:20)
+      at InternalRenderTask._next (node_modules/pdfjs-dist/legacy/build/webpack:/pdf.js/src/display/api.js:3486:37)
+  ```
 
 - [PR#76](https://github.com/moshensky/pdf-visual-diff/pull/76) fix: remove new snapshot when existing snapshot matches
 
@@ -25,7 +38,7 @@
   Notably, the update of `pdfjs-dist` to **v4** (`^4.6.82`) from v3 introduces significant changes. As a result, this release is a **BREAKING CHANGE**:
   - Due to the update in `pdfjs-dist`, the minimum supported Node.js version is now 18.
   - If you were using a version of `pdfjs-dist` lower than [v3.7.107](https://github.com/mozilla/pdf.js/releases/tag/v3.7.107), your snapshots might start to fail due to changes in how fonts are loaded and used in certain circumstances.
-  
+
   For the time being, this release has 0 vulnerabilities according to `npm audit`.
 
 ## 0.10.0 / 2024-09-06
