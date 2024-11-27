@@ -46,22 +46,22 @@
     "canvas": "^2.11.2",
     "glob": "^10.2.1",
     "jimp": "^1.6.0",
-    "pdfjs-dist": "^4.6.82",
+    "pdfjs-dist": "^4.8.69",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.10.0",
+    "@eslint/js": "^9.15.0",
     "@types/eslint__js": "^8.42.3",
     "@types/glob": "^8.1.0",
     "@types/node": "^18.15.13",
     "@types/yargs": "^17.0.33",
-    "eslint": "^9.10.0",
-    "eslint-plugin-tsdoc": "^0.3.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-tsdoc": "^0.4.0",
     "jest": "^29.7.0",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.26.7",
+    "typedoc": "^0.27.0",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.5.0"
+    "typescript-eslint": "^8.16.0"
   }
 }
