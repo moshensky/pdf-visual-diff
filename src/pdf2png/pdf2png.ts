@@ -88,21 +88,8 @@ export async function pdf2png(
   const pdfDocument = await loadingTask.promise
   const renderPdfPages = mkPdfPagesRenderer(pdfDocument, opts.dpi)
 
-  /**
-   * For faster processing, we want to use `Jimp.fromBitmap`. However, it
-   * internally uses `instanceof`, which doesn't work well with Jest due to
-   * [Jest globals differing from Node globals](https://github.com/jestjs/jest/issues/2549).
-   */
-  // @ts-expect-error we have to assert if running in jest env
-  if (typeof jest !== 'undefined') {
-    return renderPdfPages(
-      (canvas) => canvas.toBuffer('image/png'),
-      (images) => Promise.all(images.map((x) => Jimp.read(x).then((x) => x as JimpInstance))),
-    )
-  } else {
-    return renderPdfPages(
-      (canvas) => Jimp.fromBitmap(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)) as JimpInstance,
-      (images) => Promise.resolve(images),
-    )
-  }
+  return renderPdfPages(
+    (canvas) => canvas.toBuffer('image/png'),
+    (images) => Promise.all(images.map((x) => Jimp.read(x).then((x) => x as JimpInstance))),
+  )
 }
