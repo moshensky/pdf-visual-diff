@@ -46,7 +46,7 @@
     "canvas": "^2.11.2",
     "glob": "^10.2.1",
     "jimp": "^1.6.0",
-    "pdfjs-dist": "^4.7.76",
+    "pdfjs-dist": "^4.8.69",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
