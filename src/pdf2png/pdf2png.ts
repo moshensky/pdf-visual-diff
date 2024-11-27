@@ -1,3 +1,4 @@
+import * as Canvas from 'canvas'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { Jimp, JimpInstance } from 'jimp'
@@ -5,7 +6,6 @@ import type { PDFDocumentProxy, PDFPageProxy, PageViewport } from 'pdfjs-dist'
 import { DocumentInitParameters, RenderParameters } from 'pdfjs-dist/types/src/display/api'
 import { PdfToPngOptions, Dpi } from '../types'
 import { convertFromMmToPx, convertFromPxToMm } from '../conversions'
-import { createCanvasContext, CanvasContextManager } from './createCanvasContext'
 
 // pdfjs location
 const PDFJS_DIR = path.join(path.dirname(require.resolve('pdfjs-dist')), '..')
@@ -42,28 +42,26 @@ function getPageViewPort(page: PDFPageProxy, dpi: Dpi | number): PageViewport {
 
 function mkPdfPagesRenderer(pdfDocument: PDFDocumentProxy, dpi: Dpi | number) {
   return async function <T>(
-    toImage: (canvas: CanvasContextManager) => T,
+    toImage: (canvas: Canvas.Canvas) => T,
     toJimpInstances: (images: Array<T>) => Promise<ReadonlyArray<JimpInstance>>,
   ): Promise<ReadonlyArray<JimpInstance>> {
     const images: Array<T> = []
-    const canvas = createCanvasContext()
     const totalPages = pdfDocument.numPages
 
     for (let idx = 1; idx <= totalPages; idx += 1) {
       const page = await pdfDocument.getPage(idx)
+      const canvasFactory = pdfDocument.canvasFactory
       const viewport = getPageViewPort(page, dpi)
-      canvas.resize(viewport.width, viewport.height)
+      // @ts-expect-error
+      const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
       const renderParameters: RenderParameters = {
-        // @ts-expect-error type mismatch between web and node.js canvas
-        canvasContext: canvas.context,
+        canvasContext: canvasAndContext.context,
         viewport,
       }
       await page.render(renderParameters).promise
+      images.push(toImage(canvasAndContext.canvas))
       page.cleanup()
-      images.push(toImage(canvas))
     }
-
-    canvas.dispose()
 
     return toJimpInstances(images)
   }
@@ -98,12 +96,12 @@ export async function pdf2png(
   // @ts-expect-error we have to assert if running in jest env
   if (typeof jest !== 'undefined') {
     return renderPdfPages(
-      (canvas) => canvas.toPngBuffer(),
+      (canvas) => canvas.toBuffer('image/png'),
       (images) => Promise.all(images.map((x) => Jimp.read(x).then((x) => x as JimpInstance))),
     )
   } else {
     return renderPdfPages(
-      (canvas) => Jimp.fromBitmap(canvas.toImageData()) as JimpInstance,
+      (canvas) => Jimp.fromBitmap(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)) as JimpInstance,
       (images) => Promise.resolve(images),
     )
   }
