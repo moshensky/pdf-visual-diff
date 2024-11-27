@@ -52,7 +52,7 @@ function mkPdfPagesRenderer(pdfDocument: PDFDocumentProxy, dpi: Dpi | number) {
       const page = await pdfDocument.getPage(idx)
       const canvasFactory = pdfDocument.canvasFactory
       const viewport = getPageViewPort(page, dpi)
-      // @ts-expect-error
+      // @ts-expect-error unknown method on Object
       const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
       const renderParameters: RenderParameters = {
         canvasContext: canvasAndContext.context,
