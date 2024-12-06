@@ -1,6 +1,6 @@
 # Changelog
 
-## UNRELEASED 0.14.0 / 2024-12-06
+## 0.14.0 / 2024-12-06
 
 ### :tada: Enhancements
 
