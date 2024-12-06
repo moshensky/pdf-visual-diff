@@ -10,8 +10,6 @@
 
 ## Installation
 
-This library depends on `canvas` package. Please refer to the [canvas documentation](https://github.com/Automattic/node-canvas) for any additional installation steps.
-
 ```sh
 npm install -D pdf-visual-diff
 ```
