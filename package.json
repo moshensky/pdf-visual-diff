@@ -43,10 +43,10 @@
   },
   "homepage": "https://github.com/moshensky/pdf-visual-diff#readme",
   "dependencies": {
-    "canvas": "^2.11.2",
+    "@napi-rs/canvas": "^0.1.65",
     "glob": "^10.2.1",
     "jimp": "^1.6.0",
-    "pdfjs-dist": "^4.8.69",
+    "pdfjs-dist": "^4.9.155",
     "yargs": "^17.7.2"
   },
   "devDependencies": {

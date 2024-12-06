@@ -1,4 +1,4 @@
-import * as Canvas from 'canvas'
+import * as Canvas from '@napi-rs/canvas'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { Jimp, JimpInstance } from 'jimp'

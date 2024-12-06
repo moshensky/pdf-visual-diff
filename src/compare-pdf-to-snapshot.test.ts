@@ -51,6 +51,7 @@ describe('comparePdfToSnapshot()', () => {
 
   it('should fail and create diff with new version', async () => {
     const isEqual = await comparePdfToSnapshot(singlePagePdfPath, __dirname, 'two-page')
+    // Should not match
     assert.strictEqual(isEqual, false)
 
     const snapshotDiffPath = join(__dirname, SNAPSHOTS_DIR_NAME, 'two-page.diff.png')
@@ -115,7 +116,7 @@ describe('comparePdfToSnapshot()', () => {
     it('two-page.pdf buffer', () => readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
   })
 
-  describe('maskRegions', () => {
+  describe('mask regions', () => {
     const blueMask: RegionMask = {
       type: 'rectangle-mask',
       x: 50,
