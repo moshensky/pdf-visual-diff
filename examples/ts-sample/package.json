@@ -31,9 +31,9 @@
     "pdfmake": "^0.1.68"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.0.0",
     "@types/pdfmake": "^0.1.16",
-    "pdf-visual-diff": "^0.11.1",
+    "pdf-visual-diff": "^0.14.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
   }

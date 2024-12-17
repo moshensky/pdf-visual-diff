@@ -4,8 +4,6 @@ This example demonstrates how to use the `comparePdfToSnapshot` function from th
 
 ## Installation
 
-This project depends on the transitive dependency `canvas` package. Please refer to the [canvas documentation](https://github.com/Automattic/node-canvas) for any additional installation steps.
-
 ```sh
 nvm use
 npm install
@@ -21,7 +19,7 @@ npm install
 Run the following command in the terminal:
 
 ```sh
-node index.js
+node index.cjs
 ```
 
 After the first run, a `__snapshots__` directory will be created with a snapshot `png` file of the PDF.
@@ -31,7 +29,7 @@ After the first run, a `__snapshots__` directory will be created with a snapshot
 Run the command again:
 
 ```sh
-node index.js
+node index.cjs
 ```
 
 Since the snapshot already exists, the PDF will be compared to it. The program output should be:
@@ -57,7 +55,7 @@ Is pdf equal to its snapshot? Answer: true
 Run the command again:
 
 ```sh
-node index.js
+node index.cjs
 ```
 
 Since the snapshot already exists, the PDF will be compared to it. The program output should be:
