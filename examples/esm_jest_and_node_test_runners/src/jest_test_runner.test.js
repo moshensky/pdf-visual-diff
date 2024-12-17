@@ -2,6 +2,6 @@ import { pathToPdf } from './utils.js'
 
 test(
   'PDF visual regression',
-  () => expect(pathToPdf).toMatchPdfSnapshot({ pdf2PngOptions: { dpi: 72 } }),
+  () => expect(pathToPdf).toMatchPdfSnapshot(),
   20_000,
 )
