@@ -4,8 +4,6 @@ This example demonstrates how to use the `comparePdfToSnapshot` function from th
 
 ## Installation
 
-This project depends on the transitive dependency `canvas` package. Please refer to the [canvas documentation](https://github.com/Automattic/node-canvas) for any additional installation steps.
-
 ```sh
 nvm use
 npm install
