@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pdf-visual-diff": "^0.11.1"
+    "pdf-visual-diff": "^0.14.0"
   },
   "engines": {
     "node": ">=20.17.0"
