@@ -5,3 +5,9 @@ It has two tests that use `pdf-visual-diff`:
 
 - One asserts that a snapshot matches.
 - The other asserts that it doesn't match.
+
+```sh
+nvm use
+npm install
+npm test
+```
