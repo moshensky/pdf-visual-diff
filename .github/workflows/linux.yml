@@ -1,4 +1,4 @@
-name: Linux CI/CD
+name: Tests and Checks under Linux
 on:
   pull_request:
   push:

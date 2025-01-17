@@ -1,4 +1,4 @@
-name: Windows CI/CD
+name: Tests and Checks under Windows
 on:
   pull_request:
   push:
