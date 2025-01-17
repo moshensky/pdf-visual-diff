@@ -5,7 +5,7 @@
 ### :tada: Enhancements
 
 - [PR#85](https://github.com/moshensky/pdf-visual-diff/pull/85) chore: update `pdfjs-dist` to latest `v4.9.155`. This is a **BREAKING CHANGE**:
-  - The minimum supported Node.js version is now v20.
+  - The minimum supported Node.js version is now v20.18.1.
   - `pdfjs-dist` introduces a major change in how PDFs are rasterized by replacing `node/canvas` with `@napi-rs/canvas`. This is a positive improvement because the latter has zero dependecines. However, you should expect to update all your existing snapshots.
 
 ## 0.13.0 / 2024-11-27
