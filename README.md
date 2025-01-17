@@ -47,6 +47,8 @@ Returns a promise that resolves to `true` if the PDF matches the snapshot or if 
 
 For further details and [configuration options](https://moshensky.github.io/pdf-visual-diff/types/CompareOptions.html), please refer to the [API Documentation](https://moshensky.github.io/pdf-visual-diff).
 
+> There may be differences between the images generated from the same PDF on different operating systems.
+
 ## Sample usage
 
 > **Note:** You can find sample projects in the [examples](https://github.com/moshensky/pdf-visual-diff/tree/master/examples) folder.

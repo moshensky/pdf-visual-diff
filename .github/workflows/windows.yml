@@ -1,0 +1,46 @@
+name: Windows CI/CD
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 22.x
+      - name: Print versions
+        shell: pwsh
+        run: |
+          $PSVersionTable
+          Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
+      - name: Install dependencies
+        shell: pwsh
+        run: npm install
+      - name: Run tests
+        shell: pwsh
+        run: npm run test
+      - name: Store snapshots from tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshots-windows
+          path: ${{ github.workspace }}/src/__snapshots__/
+      - name: Run lint
+        shell: pwsh
+        run: npm run lint
+      - name: Run format
+        shell: pwsh
+        run: npm run format
+      - name: Make sure docs can be build
+        shell: pwsh
+        run: npm run build:docs
+      - name: Run jest smoke tests
+        shell: pwsh
+        run: npm run test:jest
