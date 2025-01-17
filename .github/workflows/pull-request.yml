@@ -9,17 +9,24 @@ on:
 
 jobs:
   primary:
-    # see https://docs.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners
-    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 20.x
       - name: Print versions
         run: |
-          cat /etc/os-release
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            cat /etc/os-release
+          else
+            systeminfo
+          fi
+        shell: bash
       - name: Install dependencies
         run: npm install
       - name: Run tests
@@ -28,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: snapshots
+          name: snapshots-${{ matrix.os }}
           path: ${{ github.workspace }}/src/__snapshots__/
       - name: Run lint
         run: npm run lint
