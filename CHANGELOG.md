@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.0 / Unreleased
+
+- [PR#90](https://github.com/moshensky/pdf-visual-diff/pull/90) chore: update
+`pdfjs-dist` to `v4.10.38`. This is considered a **BREAKING CHANGE**
+due to potential minor changes to generated snapshots.
+
 ## 0.14.0 / 2024-12-06
 
 ### :tada: Enhancements
