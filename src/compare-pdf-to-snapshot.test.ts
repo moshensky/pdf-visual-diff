@@ -17,6 +17,7 @@ const pdfs = join(testDataDir, 'pdfs')
 
 const singlePageSmallPdfPath = join(pdfs, 'single-page-small.pdf')
 const singlePagePdfPath = join(pdfs, 'single-page.pdf')
+const barcodes1PdfPath = join(pdfs, 'barcodes-1.pdf')
 const twoPagePdfPath = join(pdfs, 'two-page.pdf')
 
 async function removeIfExists(filePath: string): Promise<void> {
@@ -260,6 +261,23 @@ describe('comparePdfToSnapshot()', () => {
       })
       assert.strictEqual(isEqual, false)
       assert.strictEqual(await fileExists(snapshotPath), false, 'Snapshot should not be created')
+    })
+  })
+
+
+  describe('github issue', () => {
+    it('#89 discrepancy between windows and linux/mac using v0.14.0', () => {
+      comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-default-opts').then((x) =>
+        assert.strictEqual(x, true),
+      )
+
+      comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-default-opts-dpi-low', { pdf2PngOptions: { dpi: Dpi.Low } }).then((x) =>
+        assert.strictEqual(x, true),
+      )
+
+      comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-default-opts-dpi-low-x-4', { pdf2PngOptions: { dpi: Dpi.Low * 4 } }).then((x) =>
+        assert.strictEqual(x, true),
+      )
     })
   })
 })
