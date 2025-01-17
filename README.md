@@ -1,9 +1,5 @@
 # Test Visual Regression in PDFs
 
-[![NPM version][npm-badge-url]][npm-url]
-[![code style: prettier][prettier-badge-url]][prettier-url]
-![Pull Request CI/CD](https://github.com/moshensky/pdf-visual-diff/workflows/Pull%20Request%20CI/CD/badge.svg?branch=master)
-
 `pdf-visual-diff` is a library for testing visual regressions in PDFs. It uses [pdf.js](https://github.com/mozilla/pdf.js) to convert PDFs into PNGs and [jimp](https://github.com/oliver-moran/jimp) for image comparisons.
 
 > [API Documentation](https://moshensky.github.io/pdf-visual-diff)
@@ -13,11 +9,6 @@
 ```sh
 npm install -D pdf-visual-diff
 ```
-
-[npm-url]: https://www.npmjs.com/package/pdf-visual-diff
-[npm-badge-url]: https://img.shields.io/npm/v/pdf-visual-diff.svg
-[prettier-url]: https://github.com/prettier/prettier
-[prettier-badge-url]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg
 
 ## Description
 
