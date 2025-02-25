@@ -43,7 +43,7 @@
     "glob": "^10.2.1",
     "jimp": "^0.22.7",
     "pdfjs-dist": "^3.5.141",
-    "pureimage": "^0.4.13",
+    "pureimage": "^0.4.18",
     "yargs": "^17.7.1"
   },
   "devDependencies": {
