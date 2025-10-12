@@ -1,5 +1,5 @@
 import * as path from 'node:path'
-import { access, mkdir, unlink } from 'node:fs/promises'
+import { access, mkdir, unlink, readdir } from 'node:fs/promises'
 import { pdf2png } from './pdf2png/pdf2png'
 import { compareImages } from './compare-images'
 import { Jimp, JimpInstance } from 'jimp'
@@ -91,6 +91,12 @@ const maskImgWithRegions =
  */
 export type CompareOptions = {
   /**
+   * Whether to combine all pages into a single image.
+   *
+   * @defaultValue true
+   */
+  combinePages?: boolean
+  /**
    * Number value for error tolerance in the range [0, 1].
    *
    * @defaultValue 0
@@ -142,10 +148,25 @@ export async function comparePdfToSnapshot(
   options?: CompareOptions,
 ): Promise<boolean> {
   const mergedOptions = mergeOptionsWithDefaults(options)
-  const snapshotContext = await createSnapshotContext(snapshotDir, snapshotName)
+  const snapshotContext = await createSnapshotContext(snapshotDir, snapshotName, mergedOptions)
 
+  // When combinePages is false, we need to process each page as a separate context
+  if (Array.isArray(snapshotContext)) {
+    try {
+      // Ensure snapshots exists for all pages. If any are missing, we
+      // should re-generate all of them.
+      for (const context of snapshotContext) {
+        await access(context.path)
+      }
+
+      return compareWithSnapshot(pdf, snapshotContext, mergedOptions)
+    } catch {
+      return handleMissingSnapshot(pdf, snapshotContext[0], mergedOptions)
+    }
+  }
+
+  // Check if snapshot exits and handle accordingly
   try {
-    // Check if snapshot exits and handle accordingly
     await access(snapshotContext.path)
     return compareWithSnapshot(pdf, snapshotContext, mergedOptions)
   } catch {
@@ -163,6 +184,7 @@ type SnapshotContext = {
 
 function mergeOptionsWithDefaults(options?: CompareOptions): Required<CompareOptions> {
   return {
+    combinePages: options?.combinePages ?? true,
     maskRegions: options?.maskRegions ?? (() => []),
     pdf2PngOptions: options?.pdf2PngOptions ?? { dpi: Dpi.High },
     failOnMissingSnapshot: options?.failOnMissingSnapshot ?? false,
@@ -180,7 +202,8 @@ export const snapshotsDirName = SNAPSHOTS_DIR_NAME
 async function createSnapshotContext(
   snapshotDir: string,
   snapshotName: string,
-): Promise<SnapshotContext> {
+  options: Required<CompareOptions>,
+): Promise<SnapshotContext | Array<SnapshotContext>> {
   const dirPath = path.join(snapshotDir, SNAPSHOTS_DIR_NAME)
   try {
     await access(dirPath)
@@ -189,6 +212,21 @@ async function createSnapshotContext(
   }
 
   const basePath = path.join(dirPath, snapshotName)
+
+  // When combinePages is false, we need to create a separate snapshot for each page
+  if (options.combinePages === false) {
+    const files = await readdir(dirPath)
+    return files.filter((file: string) => file.startsWith(snapshotName)).map((file: string) => {
+      const fileNameWithoutExt = file.substring(0, file.lastIndexOf('.'))
+      return ({
+        name: snapshotName,
+        dirPath,
+        path: path.join(dirPath, file),
+        diffPath: path.join(dirPath, `${fileNameWithoutExt}.diff.png`),
+        newPath: path.join(dirPath, `${fileNameWithoutExt}.new.png`),
+      })
+    })
+  }
 
   return {
     name: snapshotName,
@@ -202,7 +240,7 @@ async function createSnapshotContext(
 async function handleMissingSnapshot(
   pdf: string | Buffer,
   snapshotContext: SnapshotContext,
-  { failOnMissingSnapshot, maskRegions, pdf2PngOptions }: Required<CompareOptions>,
+  { combinePages, failOnMissingSnapshot, maskRegions, pdf2PngOptions }: Required<CompareOptions>,
 ): Promise<boolean> {
   if (failOnMissingSnapshot) {
     return false
@@ -210,30 +248,48 @@ async function handleMissingSnapshot(
 
   // Generate snapshot if missing
   const images = await pdf2png(pdf, pdf2PngOptions).then(maskImgWithRegions(maskRegions))
-  await writeImages(snapshotContext.path)(images)
+  await writeImages(snapshotContext.path, combinePages)(images)
 
   return true
 }
 
-async function compareWithSnapshot(
-  pdf: string | Buffer,
+async function compareContext(
   snapshotContext: SnapshotContext,
-  { maskRegions, pdf2PngOptions, tolerance }: Required<CompareOptions>,
-): Promise<boolean> {
-  const images = await pdf2png(pdf, pdf2PngOptions).then(maskImgWithRegions(maskRegions))
+  images: ReadonlyArray<JimpInstance>,
+  { combinePages, tolerance }: Required<CompareOptions>
+) {
   const result = await compareImages(snapshotContext.path, images, { tolerance })
 
   if (result.equal) {
     await removeIfExists(snapshotContext.diffPath)
     await removeIfExists(snapshotContext.newPath)
-
     return true
   }
 
-  await writeImages(snapshotContext.newPath)(images)
-  await writeImages(snapshotContext.diffPath)(result.diffs.map((x) => x.diff))
+  await writeImages(snapshotContext.newPath, combinePages)(images)
+  await writeImages(snapshotContext.diffPath, combinePages)(result.diffs.map((x) => x.diff))
 
   return false
+}
+
+async function compareWithSnapshot(
+  pdf: string | Buffer,
+  snapshotContext: SnapshotContext | Array<SnapshotContext>,
+  options: Required<CompareOptions>,
+): Promise<boolean> {
+  const { maskRegions, pdf2PngOptions } = options;
+  const images = await pdf2png(pdf, pdf2PngOptions).then(maskImgWithRegions(maskRegions))
+
+  if (Array.isArray(snapshotContext)) {
+    let results: Array<Promise<boolean>> = [];
+    for (let i = 0, l = snapshotContext.length; i < l; i++) {
+      results.push(compareContext(snapshotContext[i], [images[i]], options));
+    }
+
+    return (await Promise.all(results)).every((result) => result)
+  }
+  
+  return await compareContext(snapshotContext, images, options)
 }
 
 async function removeIfExists(filePath: string): Promise<void> {
