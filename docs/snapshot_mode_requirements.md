@@ -15,11 +15,10 @@
   - `snapshotMode` (string) – `'single-image'` or `'per-page'`.
   - `hashAlgorithm` (string) – set to `'sha256'`.
   - `lastUpdated` (ISO 8601 string) – timestamp of the latest successful baseline write.
-- The number of baseline pages is `pages.length`. Derive filename zero-padding as `String(pages.length).length` whenever writing or reading per-page files.
+- The number of baseline pages is `pages.length`. Derive filename zero-padding as `String(pages.length).length` whenever writing or reading per-page files, and treat the 1-based page index as the array position plus one.
 - `source` (object) – captures how the PDF was rendered. Must include `dpi` (number) and `inputType` (`'path' | 'buffer'`). When `inputType === 'path'`, include `pdfPath` (string). Additional fields may be added in future schema versions.
-  - `pages` (array) – page descriptors ordered by ascending `index`.
+  - `pages` (array) – page descriptors ordered as they appear in the baseline; the 1-based index is implied by array position.
 - Each page descriptor MUST include:
-  - `index` (number, 1-based) – manifests MUST keep one entry per baseline page.
   - `hash` (string) – SHA-256 digest of the baseline PNG encoded as lowercase hex.
   - `dimensions` (object with `width`, `height` numbers in pixels).
 - The manifest MUST be rewritten after any change that modifies per-page baseline images or snapshot mode. Deleting the per-page baseline MUST also remove `manifest.json`.
@@ -40,7 +39,6 @@
   },
   "pages": [
     {
-      "index": 1,
       "hash": "3f8a0bb86e9a7dfc4c8f4b7923f54ecb",
       "dimensions": { "width": 2550, "height": 3300 }
     }
@@ -60,16 +58,16 @@
 
 ## Behaviour Requirements
 
-- **Baseline Creation:** When no snapshot exists and `snapshotMode: 'per-page'` is requested, render each page, compute the filename padding as the number of digits in the rendered page count, write baseline PNGs using that width (path pattern `baseline/page-<zero padded index>.png`), populate `manifest.pages` in ascending `index`, and return success unless `failOnMissingSnapshot` is `true`.
+- **Baseline Creation:** When no snapshot exists and `snapshotMode: 'per-page'` is requested, render each page, compute the filename padding as the number of digits in the rendered page count, write baseline PNGs using that width (path pattern `baseline/page-<zero padded index>.png`), populate `manifest.pages` in the order rendered, and return success unless `failOnMissingSnapshot` is `true`.
 - **Comparisons:** When comparing to an existing per-page snapshot:
-  - Load manifest entries in ascending `index` order, derive baseline PNG paths using `baselinePadWidth = String(manifest.pages.length).length` (pattern `baseline/page-<zero padded index>.png`), and compare against the freshly rendered pages from the current run.
-  - For pages that exist in the manifest, reuse `baselinePadWidth` when writing matching `actual`/`diff` filenames.
-  - Treat rendered pages beyond the manifest length as newly added; create corresponding `actual`/`diff` artefacts using `padWidth = max(baselinePadWidth, numberOfDigitsInCurrentRenderCount)` so only the new pages adopt a wider width when needed. (Here, `numberOfDigitsInCurrentRenderCount` is `String(totalPagesRenderedThisRun).length`.)
+  - Iterate over `manifest.pages` in order, derive baseline PNG paths using `baselinePadWidth = String(manifest.pages.length).length` (pattern `baseline/page-<zero padded index>.png`), and compare against the freshly rendered pages from the current run.
+  - For pages that exist in the manifest, reuse `baselinePadWidth` when writing matching `actual`/`diff` filenames (index implied by array position).
+  - Treat rendered pages beyond the manifest length as newly added; create corresponding `actual`/`diff` artefacts using `padWidth = max(baselinePadWidth, numberOfDigitsInCurrentRenderCount)` so only the new pages adopt a wider width when needed. (Here, `numberOfDigitsInCurrentRenderCount` is `String(totalPagesRenderedThisRun).length`, and `totalPagesRenderedThisRun` equals the number of rasterised pages produced during the current comparison.)
   - If the render produces fewer pages than the manifest describes, generate diff placeholders for the missing indices (using the derived baseline path) and do not create `actual` artefacts for those pages.
   - Populate the `actual` and `diff` folders only for pages that differ. Matching pages must have their existing `actual`/`diff` files removed if present.
 - **Mode Mismatches:** If the stored manifest’s `snapshotMode` differs from the requested mode (including single-image artefacts without a manifest), abort the comparison or baseline creation with an error that names the snapshot, the detected mode, the requested mode, and the path the user must clean or regenerate.
 - **Manifest Stability:** Comparisons must not rewrite `manifest.json`; only baseline creation or an explicit baseline refresh (e.g., CLI promotion) may update it.
-- **Synthetic Diffs:** For missing or extra pages, generate a placeholder PNG in the `diff` folder that contains a solid banner in the top-left corner (16 px padding, consistent palette such as amber `#FFB300` for baseline-only pages and teal `#1ABC9C` for actual-only pages) with copy such as “Baseline has no page <index>” or “Actual run skipped page <index>”.
+- **Synthetic Diffs:** For missing or extra pages, generate a placeholder PNG in the `diff` folder that contains a solid banner in the top-left corner (16 px padding, consistent palette such as amber `#FFB300` for baseline-only pages and teal `#1ABC9C` for actual-only pages) with copy such as “Baseline has no page <index>” or “Actual run skipped page <index>”, where `<index>` equals the 1-based page position.
 - **Hashing:** Use Node’s SHA-256 implementation to compute baseline hashes when writing files. Update `lastUpdated` only when manifest contents change (e.g., baseline rewritten).
 - **Baseline Refresh:** Document that accepting new output requires deleting the existing baseline artefacts (entire `__snapshots__/<name>` directory for per-page mode, or `<name>.png`, `<name>.new.png`, and `<name>.diff.png` for single-image). On the next run—if `failOnMissingSnapshot` is `false`—a new baseline must be created automatically using the baseline-creation rules above.
 
