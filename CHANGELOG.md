@@ -2,9 +2,11 @@
 
 ## 0.15.0 / Unreleased
 
-- [PR#90](https://github.com/moshensky/pdf-visual-diff/pull/90) chore: update
-`pdfjs-dist` to `v4.10.38`. This is considered a **BREAKING CHANGE**
-due to potential minor changes to generated snapshots.
+### ⚠️ Breaking changes
+
+- [PR#101](https://github.com/moshensky/pdf-visual-diff/pull/101):
+  - chore: update `pdfjs-dist` to `v5.4.449` (potential snapshot differences)
+  - chore: bump minimum Node.js to `v22.21.1` (was `v20.18.1`) (older runtimes no longer supported)
 
 ## 0.14.0 / 2024-12-06
 
@@ -39,7 +41,7 @@ due to potential minor changes to generated snapshots.
 
 - [PR#70](https://github.com/moshensky/pdf-visual-diff/pull/70): feat: add failOnMissingSnapshot to `comparePdfToSnapshot` options. If no snapshot exists:
   - If `failOnMissingSnapshot` is `false` (default), the PDF is converted to an image,
-      saved as a new snapshot, and the function returns `true`.
+    saved as a new snapshot, and the function returns `true`.
   - If `failOnMissingSnapshot` is `true`, the function returns `false` without creating a new snapshot.
 
 ## 0.11.1 / 2024-09-11
@@ -80,7 +82,7 @@ If you haven't used `maskRegions` then you don't have to change anything.
 const opts = {
   maskRegions: [
     // Your mask definitions...
-  ]
+  ],
 }
 
 // To
@@ -88,14 +90,14 @@ const opts = {
   // Here one can use `page` parameter to provide different mask regions for every page
   maskRegions: (page) => [
     // Your mask definitions...
-  ]
+  ],
 }
 
 const opts = {
-  maskRegions: () => [blueMask, greenMask]
+  maskRegions: () => [blueMask, greenMask],
 }
 
-comparePdfToSnapshot( singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts)
+comparePdfToSnapshot(singlePagePdfPath, __dirname, 'mask-rectangle-masks', opts)
 ```
 
 ## 0.7.1 / 2023-02-23

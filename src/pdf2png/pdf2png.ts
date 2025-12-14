@@ -55,6 +55,9 @@ function mkPdfPagesRenderer(pdfDocument: PDFDocumentProxy, dpi: Dpi | number) {
       // @ts-expect-error unknown method on Object
       const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
       const renderParameters: RenderParameters = {
+        // pdf.js expects a DOM canvas, but the node build returns a napi-rs canvas.
+        // Cast here to satisfy the newer RenderParameters typing.
+        canvas: canvasAndContext.canvas as unknown as HTMLCanvasElement,
         canvasContext: canvasAndContext.context,
         viewport,
       }
