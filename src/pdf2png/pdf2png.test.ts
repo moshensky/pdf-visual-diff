@@ -54,7 +54,9 @@ describe('pdf2png()', () => {
   it('pdf that requires cmaps', () => {
     const expectedImagePath = join(expectedDir, 'cmaps.png')
     return pdf2png(cmaps)
-      .then((imgs) => compareImages(expectedImagePath, imgs))
+      .then((imgs) => {
+        return compareImages(expectedImagePath, imgs)
+      })
       .then((result) => assert.strictEqual(result.equal, true))
   })
 })
