@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.1 / 2025-12-14
+
+- chore: add `exports` map limiting deep imports to the public surface (`.` and `./cli`); callers using `pdf-visual-diff/lib/...` must switch to the top-level entry.
+- chore: raise TypeScript target/lib to ES2022 and enable `esModuleInterop` (runtime remains CJS).
+- fix: CLI/yargs interop for Node 24+ so CLI commands run without `TypeError: yargs is not a function`.
+
 ## 0.15.0 / 2025-12-14
 
 ### ⚠️ Breaking changes
