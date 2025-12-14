@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.15.1 / Unreleased
+## 0.15.1 / 2025-12-14
 
 - chore: add `exports` map limiting deep imports to the public surface (`.` and `./cli`); callers using `pdf-visual-diff/lib/...` must switch to the top-level entry.
 - chore: raise TypeScript target/lib to ES2022 and enable `esModuleInterop` (runtime remains CJS).
