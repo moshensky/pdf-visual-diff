@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "ES2022",
     "module": "Node16",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -9,7 +9,7 @@
     "declaration": true,
     "noEmitOnError": false,
     "sourceMap": true,
-    "lib": ["dom", "es2017"],
+    "lib": ["dom", "es2022"],
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -21,7 +21,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true
   },
   "include": ["./src/**/*"]
 }
