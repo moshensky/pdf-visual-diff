@@ -60,7 +60,9 @@ describe('pdf2png()', () => {
   it('pdf that requires cmaps', async () => {
     const expectedImagePath = join(expectedDir, 'cmaps.png')
     const imgs = await pdf2png(cmaps)
-    const result = await compareImages(expectedImagePath, imgs, { tolerance: crossPlatformTolerance })
+    const result = await compareImages(expectedImagePath, imgs, {
+      tolerance: crossPlatformTolerance,
+    })
     assert.strictEqual(result.equal, true)
   })
 })

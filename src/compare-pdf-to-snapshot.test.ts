@@ -274,18 +274,22 @@ describe('comparePdfToSnapshot()', () => {
 
   describe('github issue', () => {
     // TODO: Investigate why this test fails on Windows/macOS and fix the underlying issue
-    it('#89 discrepancy between windows and linux/mac using v0.14.0', { skip: !isLinux }, async () => {
-      await comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-default-opts').then((x) =>
-        assert.strictEqual(x, true),
-      )
+    it(
+      '#89 discrepancy between windows and linux/mac using v0.14.0',
+      { skip: !isLinux },
+      async () => {
+        await comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-default-opts').then(
+          (x) => assert.strictEqual(x, true),
+        )
 
-      await comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-dpi-low', {
-        pdf2PngOptions: { dpi: Dpi.Low },
-      }).then((x) => assert.strictEqual(x, true))
+        await comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-dpi-low', {
+          pdf2PngOptions: { dpi: Dpi.Low },
+        }).then((x) => assert.strictEqual(x, true))
 
-      await comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-default-low-x-4', {
-        pdf2PngOptions: { dpi: Dpi.Low * 4 },
-      }).then((x) => assert.strictEqual(x, true))
-    })
+        await comparePdfToSnapshot(barcodes1PdfPath, __dirname, 'barcodes-1-default-low-x-4', {
+          pdf2PngOptions: { dpi: Dpi.Low * 4 },
+        }).then((x) => assert.strictEqual(x, true))
+      },
+    )
   })
 })
