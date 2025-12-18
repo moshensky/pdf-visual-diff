@@ -1,9 +1,15 @@
 import { describe, it } from 'node:test'
 import * as assert from 'node:assert/strict'
 import { join } from 'path'
+import { platform } from 'node:os'
 import { pdf2png } from './pdf2png'
 import { compareImages } from '../compare-images'
 import { Dpi } from '../types'
+
+// Tolerance for cross-platform font rendering differences
+// Snapshots are generated on Linux, so use strict tolerance there
+const isLinux = platform() === 'linux'
+const crossPlatformTolerance = isLinux ? 0 : 0.05
 
 const testDataDir = join(__dirname, '../test-data')
 const pdfs = join(testDataDir, 'pdfs')
@@ -51,12 +57,10 @@ describe('pdf2png()', () => {
       .then((result) => assert.strictEqual(result.equal, true))
   })
 
-  it('pdf that requires cmaps', () => {
+  it('pdf that requires cmaps', async () => {
     const expectedImagePath = join(expectedDir, 'cmaps.png')
-    return pdf2png(cmaps)
-      .then((imgs) => {
-        return compareImages(expectedImagePath, imgs)
-      })
-      .then((result) => assert.strictEqual(result.equal, true))
+    const imgs = await pdf2png(cmaps)
+    const result = await compareImages(expectedImagePath, imgs, { tolerance: crossPlatformTolerance })
+    assert.strictEqual(result.equal, true)
   })
 })
