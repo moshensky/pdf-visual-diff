@@ -10,11 +10,14 @@ import { convertFromMmToPx, convertFromPxToMm } from '../conversions'
 // pdfjs location
 const PDFJS_DIR = path.join(path.dirname(require.resolve('pdfjs-dist')), '..')
 
+// Convert path to URL format (forward slashes) for pdfjs-dist compatibility on Windows
+const toUrlPath = (p: string): string => p.split(path.sep).join('/')
+
 const DOCUMENT_INIT_PARAMS_DEFAULTS: DocumentInitParameters = {
   // Where the standard fonts are located.
-  standardFontDataUrl: path.join(PDFJS_DIR, 'standard_fonts/'),
+  standardFontDataUrl: toUrlPath(path.join(PDFJS_DIR, 'standard_fonts')) + '/',
   // Some PDFs need external cmaps.
-  cMapUrl: path.join(PDFJS_DIR, 'cmaps/'),
+  cMapUrl: toUrlPath(path.join(PDFJS_DIR, 'cmaps')) + '/',
   cMapPacked: true,
 }
 
