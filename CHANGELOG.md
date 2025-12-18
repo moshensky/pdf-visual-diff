@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.15.2 / 2025-12-18
+
+### 🐛 Bug Fix
+
+- fix: Windows compatibility for pdfjs-dist URL paths. On Windows, `path.join()` produces backslash-separated paths which pdfjs-dist rejected with "must include trailing slash" error.
+
+### :wrench: Internal
+
+- test: add cross-platform tolerance (0.05) for TAMReview and cmaps tests due to font rendering differences across operating systems
+- test: skip #89 discrepancy test on non-Linux platforms
+- test: fix CLI utils tests to use OS-appropriate path separators
+
 ## 0.15.1 / 2025-12-14
 
 - chore: add `exports` map limiting deep imports to the public surface (`.` and `./cli`); callers using `pdf-visual-diff/lib/...` must switch to the top-level entry.
