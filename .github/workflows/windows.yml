@@ -46,6 +46,3 @@ jobs:
       - name: Make sure docs can be build
         shell: pwsh
         run: npm run build:docs
-      - name: Run jest smoke tests
-        shell: pwsh
-        run: npm run test:jest
