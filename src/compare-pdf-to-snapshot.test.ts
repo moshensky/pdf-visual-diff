@@ -123,7 +123,12 @@ describe('comparePdfToSnapshot()', () => {
       }))
     it('two-page.pdf', () => testPdf2png(twoPage, 'two-page'))
     it('two-page.pdf buffer', () => readFile(twoPage).then((x) => testPdf2png(x, 'two-page')))
-  })
+    it('two-page-separate-pages (combinePages: false)', () => {
+      return testPdf2png(twoPagePdfPath, 'two-page-separate-pages', {
+        combinePages: false
+      })
+    })
+  });
 
   describe('mask regions', () => {
     const blueMask: RegionMask = {
