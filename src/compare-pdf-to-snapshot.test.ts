@@ -280,11 +280,7 @@ describe('comparePdfToSnapshot()', () => {
 
       await removeIfExists(snapshotPath)
 
-      const isEqual = await comparePdfToSnapshot(
-        textNotCapturedPdfPath,
-        __dirname,
-        snapshotName,
-      )
+      const isEqual = await comparePdfToSnapshot(textNotCapturedPdfPath, __dirname, snapshotName)
       assert.strictEqual(isEqual, true)
       assert.strictEqual(await fileExists(snapshotPath), true)
     })

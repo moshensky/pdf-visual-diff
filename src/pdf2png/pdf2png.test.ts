@@ -65,5 +65,4 @@ describe('pdf2png()', () => {
     })
     assert.strictEqual(result.equal, true)
   })
-
 })
