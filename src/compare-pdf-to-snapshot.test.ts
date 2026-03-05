@@ -20,6 +20,7 @@ const singlePageSmallPdfPath = join(pdfs, 'single-page-small.pdf')
 const singlePagePdfPath = join(pdfs, 'single-page.pdf')
 const barcodes1PdfPath = join(pdfs, 'barcodes-1.pdf')
 const twoPagePdfPath = join(pdfs, 'two-page.pdf')
+const textNotCapturedPdfPath = join(pdfs, 'text-not-captured.pdf')
 
 // Tolerance for cross-platform font rendering differences
 // Snapshots are generated on Linux, so use strict tolerance there
@@ -269,6 +270,23 @@ describe('comparePdfToSnapshot()', () => {
       })
       assert.strictEqual(isEqual, false)
       assert.strictEqual(await fileExists(snapshotPath), false, 'Snapshot should not be created')
+    })
+  })
+
+  describe('text rendering', () => {
+    it('should capture text in snapshot', async () => {
+      const snapshotName = 'text-not-captured'
+      const snapshotPath = join(__dirname, SNAPSHOTS_DIR_NAME, `${snapshotName}.png`)
+
+      await removeIfExists(snapshotPath)
+
+      const isEqual = await comparePdfToSnapshot(
+        textNotCapturedPdfPath,
+        __dirname,
+        snapshotName,
+      )
+      assert.strictEqual(isEqual, true)
+      assert.strictEqual(await fileExists(snapshotPath), true)
     })
   })
 
