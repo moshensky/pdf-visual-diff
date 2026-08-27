@@ -51,7 +51,7 @@
     "@napi-rs/canvas": "^0.1.84",
     "glob": "^13.0.0",
     "jimp": "^1.6.0",
-    "pdfjs-dist": "^5.4.449",
+    "pdfjs-dist": "^6.2.108",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
