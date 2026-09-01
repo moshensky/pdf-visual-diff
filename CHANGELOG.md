@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.16.0 / 2026-09-01
 
 ### ⚠️ Expect to update your snapshots
 
@@ -12,11 +12,15 @@
 
   If you would rather not regenerate, raise `tolerance` in `CompareOptions`. Note this is a **per-pixel color threshold**, not an allowance on how many pixels may differ — a comparison fails if _any_ pixel still differs beyond the threshold, so a large enough renderer change will fail at any tolerance below the point where every affected pixel is absorbed.
 
+### 🐛 Bug Fix
+
+- fix: destroy the pdf.js loading task after rendering. `pdf2png` left the worker running, which kept the Node process alive after work finished — test runners would hang or report that the process did not exit cleanly.
+
 ### :wrench: Internal
 
 - chore: update dev dependencies, notably TypeScript to `v6.0.3` and ESLint to `v10.8.1`.
 - fix: add `"types": ["node"]` to `tsconfig.json`. Under TypeScript 6, test files importing only Node builtins failed to compile with `TS2591: Cannot find name 'node:test'`.
-- test: regenerate `TAMReview`, `TAMReview_without_scaling`, `cmaps` and `two-page_png_per_page` fixtures for the new renderer output.
+- test: regenerate `TAMReview`, `TAMReview_without_scaling`, `cmaps`, `two-page_png_per_page` and the jest smoke test fixtures for the new renderer output.
 
 ## 0.15.2 / 2025-12-18
 
