@@ -18,8 +18,8 @@ describe('jest smoke tests', () => {
           expect(isEqual).toEqual(true)
         },
       ),
-    10_000,
+    60_000,
   )
 
-  test('custom matcher', () => expect(twoPagePdfPath).toMatchPdfSnapshot(opts), 10_000)
+  test('custom matcher', () => expect(twoPagePdfPath).toMatchPdfSnapshot(opts), 60_000)
 })

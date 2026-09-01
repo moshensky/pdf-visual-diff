@@ -94,8 +94,13 @@ export async function pdf2png(
   const pdfDocument = await loadingTask.promise
   const renderPdfPages = mkPdfPagesRenderer(pdfDocument, opts.dpi)
 
-  return renderPdfPages(
-    (canvas) => canvas.toBuffer('image/png'),
-    (images) => Promise.all(images.map((x) => Jimp.read(x).then((x) => x as JimpInstance))),
-  )
+  try {
+    return await renderPdfPages(
+      (canvas) => canvas.toBuffer('image/png'),
+      (images) => Promise.all(images.map((x) => Jimp.read(x).then((x) => x as JimpInstance))),
+    )
+  } finally {
+    // Release the pdf.js worker, otherwise it keeps the process alive.
+    await loadingTask.destroy()
+  }
 }

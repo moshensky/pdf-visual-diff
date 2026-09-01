@@ -8,10 +8,18 @@ const ignoredPackages = [];
  * Type: { [packageName]: reason }, i.e. { '@storybook/react': 'some reason' }
  */
 const ignoreMajorVersions = {
+  typescript: 'typescript-eslint supports typescript <6.1.0; TS 7 is the Go port and is not supported by it yet',
+  '@types/node': 'keep node typings aligned with the Node 24 runtime floor in engines.node',
 };
 
 module.exports = {
   upgrade: true,
+  /**
+   * Supply chain protection: only consider versions published at least 14 days
+   * ago. Mirrors `min-release-age=14` in .npmrc, so ncu never proposes a version
+   * that `npm install` would subsequently reject.
+   */
+  cooldown: 14,
   reject: ignoredPackages,
   packageManager: 'npm',
   /** Custom target that performs minor upgrades for selected packages.

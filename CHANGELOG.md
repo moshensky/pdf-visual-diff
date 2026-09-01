@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### ⚠️ Expect to update your snapshots
+
+- chore: update `pdfjs-dist` to `v6.2.108` (was `v5.4.449`) and `@napi-rs/canvas` to `v1.0.6` (was `v0.1.84`).
+
+  Both packages changed how glyphs and vector edges are rasterized, so **existing snapshots will very likely no longer match** and must be regenerated. Page dimensions are unaffected — only edge/antialiasing pixels differ. In this repo's own fixtures the differing-pixel share was 0.0006%–0.63% of the image, concentrated at glyph and line boundaries, with rendered content otherwise identical.
+
+  To regenerate, delete the affected files under `__snapshots__/` and re-run your tests; `comparePdfToSnapshot` recreates a missing snapshot and returns `true`. Review the recreated images before committing them.
+
+  If you would rather not regenerate, raise `tolerance` in `CompareOptions`. Note this is a **per-pixel color threshold**, not an allowance on how many pixels may differ — a comparison fails if _any_ pixel still differs beyond the threshold, so a large enough renderer change will fail at any tolerance below the point where every affected pixel is absorbed.
+
+### :wrench: Internal
+
+- chore: update dev dependencies, notably TypeScript to `v6.0.3` and ESLint to `v10.8.1`.
+- fix: add `"types": ["node"]` to `tsconfig.json`. Under TypeScript 6, test files importing only Node builtins failed to compile with `TS2591: Cannot find name 'node:test'`.
+- test: regenerate `TAMReview`, `TAMReview_without_scaling`, `cmaps` and `two-page_png_per_page` fixtures for the new renderer output.
+
 ## 0.15.2 / 2025-12-18
 
 ### 🐛 Bug Fix
