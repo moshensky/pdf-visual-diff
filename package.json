@@ -18,14 +18,14 @@
     "tsc:watch": "npm run tsc -- --watch",
     "lint": "eslint ./src",
     "lint:fix": "npm run lint -- --fix",
-    "format:other": "prettier --write .eslintrc.js .prettierrc.json tsconfig.json",
+    "format:other": "prettier --write eslint.config.mjs .prettierrc.json tsconfig.json",
     "format": "prettier ./src --check",
     "format:fix": "prettier ./src --write",
     "test": "node --require ts-node/register --test src/**/*.test.ts src/*.test.ts",
     "test:watch": "node --require ts-node/register --test --watch src/**/*.test.ts src/*.test.ts",
     "test:jest": "npm run tsc -- --noEmit false && NODE_OPTIONS=--experimental-vm-modules jest test/jest.test.js",
     "license-checker": "npx license-checker --production --onlyAllow 'MIT; MIT OR X11; BSD; ISC; Apache-2.0; Unlicense' --excludePackages 'pdf-visual-diff'",
-    "update-deps": "npx npm-check-updates --configFileName .ncurc.js"
+    "update-deps": "npm-check-updates --configFileName .ncurc.js --interactive"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,9 @@
     "diff testing",
     "js"
   ],
+  "engines": {
+    "node": ">=24.5"
+  },
   "author": "Nikita Moshensky",
   "license": "MIT",
   "bugs": {
@@ -48,24 +51,25 @@
   },
   "homepage": "https://github.com/moshensky/pdf-visual-diff#readme",
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.84",
-    "glob": "^13.0.0",
-    "jimp": "^1.6.0",
-    "pdfjs-dist": "^5.4.449",
-    "yargs": "^18.0.0"
+    "@napi-rs/canvas": "^1.0.6",
+    "glob": "^13.0.6",
+    "jimp": "^1.6.1",
+    "pdfjs-dist": "^6.2.108",
+    "yargs": "^18.1.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@types/glob": "^9.0.0",
-    "@types/node": "^25.0.1",
+    "@types/node": "^25.9.5",
     "@types/yargs": "^17.0.35",
-    "eslint": "^9.39.2",
-    "eslint-plugin-tsdoc": "^0.5.0",
-    "jest": "^30.2.0",
-    "prettier": "^3.7.4",
+    "eslint": "^10.8.1",
+    "eslint-plugin-tsdoc": "^0.5.2",
+    "jest": "^30.4.2",
+    "npm-check-updates": "23.0.2",
+    "prettier": "^3.9.6",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.28.15",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.49.0"
+    "typedoc": "^0.28.20",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0"
   }
 }

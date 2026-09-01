@@ -10,15 +10,7 @@ import { writeImages } from './imageUtils'
  * Represents the available colors for highlighting.
  */
 export type HighlightColor =
-  | 'Red'
-  | 'Green'
-  | 'Blue'
-  | 'White'
-  | 'Cyan'
-  | 'Magenta'
-  | 'Yellow'
-  | 'Black'
-  | 'Gray'
+  'Red' | 'Green' | 'Blue' | 'White' | 'Cyan' | 'Magenta' | 'Yellow' | 'Black' | 'Gray'
 
 /**
  * Represents a rectangular mask applied at the PNG level, i.e., after the
